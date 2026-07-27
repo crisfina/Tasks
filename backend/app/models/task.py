@@ -1,7 +1,8 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.enums import (
@@ -13,6 +14,11 @@ from app.enums import (
     VisibilityEnum,
 )
 
+if TYPE_CHECKING:
+    from app.models.category import Category
+    from app.models.room import Room
+    from app.models.user import User
+    from app.models.task_assignment_user import TaskAssignmentUser
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -33,6 +39,7 @@ class Task(Base):
     )
 
     estimated_minutes: Mapped[int | None] = mapped_column(nullable=True)
+
     difficulty: Mapped[DifficultyEnum]
     priority: Mapped[PriorityEnum]
     urgency: Mapped[UrgencyEnum]
@@ -68,4 +75,20 @@ class Task(Base):
         DateTime,
         default=datetime.utcnow,
         onupdate=datetime.utcnow
+    )
+
+    category: Mapped["Category"] = relationship(
+        back_populates="tasks"
+    )
+
+    room: Mapped["Room"] = relationship(
+        back_populates="tasks"
+    )
+
+    creator: Mapped["User"] = relationship(
+        back_populates="created_tasks"
+    )
+
+    assigned_users: Mapped[list["TaskAssignmentUser"]] = relationship(
+        back_populates="task"
     )
