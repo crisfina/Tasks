@@ -1,15 +1,17 @@
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+from app.models.user_statistics import UserStatistics
 
 if TYPE_CHECKING:
     from app.models.task import Task
     from app.models.task_assignment_user import TaskAssignmentUser
+    from app.models.task_occurrence import TaskOccurrence
 
 
 class User(Base):
@@ -48,13 +50,13 @@ class User(Base):
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default=datetime.utcnow
+        default=lambda: datetime.now(UTC)
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC)
     )
 
     created_tasks: Mapped[list["Task"]] = relationship(
@@ -66,5 +68,9 @@ class User(Base):
     )
 
     task_occurrences: Mapped[list["TaskOccurrence"]] = relationship(
+    back_populates="user"
+    )
+
+    statistics: Mapped["UserStatistics"] = relationship(
     back_populates="user"
     )
