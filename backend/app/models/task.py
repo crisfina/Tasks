@@ -6,12 +6,12 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.enums import (
-    AssignmentModeEnum,
-    DifficultyEnum,
-    PriorityEnum,
-    RepeatTypeEnum,
-    UrgencyEnum,
-    VisibilityEnum,
+    AssignmentMode,
+    Difficulty,
+    Priority,
+    RepeatType,
+    Urgency,
+    Visibility,
 )
 
 if TYPE_CHECKING:
@@ -42,23 +42,23 @@ class Task(Base):
 
     estimated_minutes: Mapped[int | None] = mapped_column(nullable=True)
 
-    difficulty: Mapped[DifficultyEnum] = mapped_column(
-        Enum(DifficultyEnum),
+    difficulty: Mapped[Difficulty] = mapped_column(
+        Enum(Difficulty),
         nullable=False
     )
 
-    priority: Mapped[PriorityEnum] = mapped_column(
-        Enum(PriorityEnum),
+    priority: Mapped[Priority] = mapped_column(
+        Enum(Priority),
         nullable=False
     )
 
-    urgency: Mapped[UrgencyEnum] = mapped_column(
-        Enum(UrgencyEnum),
+    urgency: Mapped[Urgency] = mapped_column(
+        Enum(Urgency),
         nullable=False
     )
 
-    repeat_type: Mapped[RepeatTypeEnum] = mapped_column(
-        Enum(RepeatTypeEnum),
+    repeat_type: Mapped[RepeatType] = mapped_column(
+        Enum(RepeatType),
         nullable=False
     )
 
@@ -67,8 +67,8 @@ class Task(Base):
     days_before_due: Mapped[int | None] = mapped_column(nullable=True)
     days_until_due: Mapped[int | None] = mapped_column(nullable=True)
 
-    visibility: Mapped[VisibilityEnum] = mapped_column(
-        Enum(VisibilityEnum),
+    visibility: Mapped[Visibility] = mapped_column(
+        Enum(Visibility),
         nullable=False
     )
 
@@ -77,8 +77,8 @@ class Task(Base):
         nullable=False
     )
 
-    assignment_mode: Mapped[AssignmentModeEnum | None] = mapped_column(
-        Enum(AssignmentModeEnum),
+    assignment_mode: Mapped[AssignmentMode | None] = mapped_column(
+        Enum(AssignmentMode),
         nullable=True
     )
 

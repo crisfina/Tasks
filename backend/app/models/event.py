@@ -1,8 +1,5 @@
-from datetime import datetime
-from typing import TYPE_CHECKING
-
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, Enum, Integer
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, Text, Enum, Integer
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 from app.db.base import Base

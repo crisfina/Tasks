@@ -1,4 +1,4 @@
-from db.base import Base
+from app.db.base import Base
 from datetime import datetime, UTC
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
