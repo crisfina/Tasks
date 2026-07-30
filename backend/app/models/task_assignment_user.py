@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -12,16 +12,22 @@ if TYPE_CHECKING:
 class TaskAssignmentUser(Base):
     __tablename__ = "task_assignment_users"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    __table_args__ = (
+        UniqueConstraint(
+            "task_id",
+            "user_id",
+            name="uq_task_assignment_user",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
 
     task_id: Mapped[int] = mapped_column(
-        ForeignKey("tasks.id"),
-        nullable=False
+        ForeignKey("tasks.id")
     )
 
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"),
-        nullable=False
+        ForeignKey("users.id")
     )
 
     user: Mapped["User"] = relationship(
@@ -32,12 +38,4 @@ class TaskAssignmentUser(Base):
     back_populates="assigned_users"
     )
 
-    order: Mapped[int | None] = mapped_column(nullable=True)
-
-    user: Mapped["User"] = relationship(
-        back_populates="assigned_tasks"
-    )
-
-    user: Mapped["User"] = relationship(
-        back_populates="assigned_tasks"
-    )
+    order: Mapped[int | None] = mapped_column(Integer)

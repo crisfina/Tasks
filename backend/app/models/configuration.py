@@ -8,8 +8,8 @@ from app.db.base import Base
 class Configuration(Base):
     __tablename__ = "configurations"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    key: Mapped[str] = mapped_column(String(100), nullable=False, unique=True, index=True)
-    value: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str | None] = mapped_column(Text, nullable=True)
-    is_editable: Mapped[bool] = mapped_column(nullable=False, default=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    key: Mapped[str] = mapped_column(String(100), unique=True)
+    value: Mapped[str] = mapped_column(Text)
+    description: Mapped[str | None] = mapped_column(Text)
+    is_editable: Mapped[bool] = mapped_column(default=True)

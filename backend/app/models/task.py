@@ -25,80 +25,52 @@ if TYPE_CHECKING:
 class Task(Base):
     __tablename__ = "tasks"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
 
-    title: Mapped[str] = mapped_column(String(200), nullable=False)
-    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    title: Mapped[str] = mapped_column(String(200))
 
-    category_id: Mapped[int] = mapped_column(
-        ForeignKey("categories.id"),
-        nullable=False
-    )
+    description: Mapped[str | None] = mapped_column(Text)
 
-    room_id: Mapped[int] = mapped_column(
-        ForeignKey("rooms.id"),
-        nullable=False
-    )
+    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
 
-    estimated_minutes: Mapped[int | None] = mapped_column(nullable=True)
+    room_id: Mapped[int] = mapped_column(ForeignKey("rooms.id"))
 
-    difficulty: Mapped[Difficulty] = mapped_column(
-        Enum(Difficulty),
-        nullable=False
-    )
+    estimated_minutes: Mapped[int | None] = mapped_column()
 
-    priority: Mapped[Priority] = mapped_column(
-        Enum(Priority),
-        nullable=False
-    )
+    difficulty: Mapped[Difficulty] = mapped_column(Enum(Difficulty, name="difficulty"))
 
-    urgency: Mapped[Urgency] = mapped_column(
-        Enum(Urgency),
-        nullable=False
-    )
+    priority: Mapped[Priority] = mapped_column(Enum(Priority, name="priority"))
 
-    repeat_type: Mapped[RepeatType] = mapped_column(
-        Enum(RepeatType),
-        nullable=False
-    )
+    urgency: Mapped[Urgency] = mapped_column(Enum(Urgency, name="urgency"))
 
-    repeat_interval: Mapped[int | None] = mapped_column(nullable=True)
+    repeat_type: Mapped[RepeatType] = mapped_column(Enum(RepeatType, name="repeat_type"))
 
-    days_before_due: Mapped[int | None] = mapped_column(nullable=True)
-    days_until_due: Mapped[int | None] = mapped_column(nullable=True)
+    repeat_interval: Mapped[int | None] = mapped_column()
 
-    visibility: Mapped[Visibility] = mapped_column(
-        Enum(Visibility),
-        nullable=False
-    )
+    days_before_due: Mapped[int | None] = mapped_column()
 
-    created_by: Mapped[int] = mapped_column(
-        ForeignKey("users.id"),
-        nullable=False
-    )
+    days_until_due: Mapped[int | None] = mapped_column()
 
-    assignment_mode: Mapped[AssignmentMode | None] = mapped_column(
-        Enum(AssignmentMode),
-        nullable=True
-    )
+    visibility: Mapped[Visibility] = mapped_column(Enum(Visibility, name="visibility"))
 
-    display_order: Mapped[int | None] = mapped_column(nullable=True)
+    created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
+
+    assignment_mode: Mapped[AssignmentMode | None] = mapped_column(Enum(AssignmentMode, name="assignment_mode"))
+
+    display_order: Mapped[int | None] = mapped_column()
 
     is_active: Mapped[bool] = mapped_column(
         Boolean,
-        nullable=False,
         default=True
     )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        nullable=False,
         default=lambda: datetime.now(UTC)
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        nullable=False,
         default=lambda: datetime.now(UTC),
         onupdate=lambda: datetime.now(UTC)
     )
