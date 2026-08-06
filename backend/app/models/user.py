@@ -7,12 +7,16 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 from app.enums.user_role import UserRole
 
+
+
 if TYPE_CHECKING:
     from app.models.point_transaction import PointTransaction
     from app.models.task import Task
     from app.models.task_assignment_user import TaskAssignmentUser
     from app.models.task_occurrence import TaskOccurrence
     from app.models.user_statistics import UserStatistics
+    from app.models.household_user import HouseholdUser
+    from app.models.event import Event
 
 
 class User(Base):
@@ -90,3 +94,12 @@ class User(Base):
     point_transactions: Mapped[list["PointTransaction"]] = relationship(
         back_populates="user",
     )
+
+    household_memberships: Mapped[list["HouseholdUser"]] = relationship(
+        back_populates="user",
+    )
+
+    events: Mapped[list["Event"]] = relationship(
+        back_populates="user",
+    )
+

@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from app.models.task_assignment_user import TaskAssignmentUser
     from app.models.task_occurrence import TaskOccurrence
     from app.models.user import User
+    from app.models.household import Household
 
 
 class Task(Base):
@@ -54,6 +55,8 @@ class Task(Base):
     visibility: Mapped[Visibility] = mapped_column(Enum(Visibility, name="visibility"))
 
     created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
+
+    household_id: Mapped[int | None] = mapped_column(ForeignKey("households.id"))
 
     assignment_mode: Mapped[AssignmentMode | None] = mapped_column(Enum(AssignmentMode, name="assignment_mode"))
 
@@ -93,4 +96,8 @@ class Task(Base):
 
     occurrences: Mapped[list["TaskOccurrence"]] = relationship(
         back_populates="task"
+    )
+
+    household: Mapped["Household | None"] = relationship(
+        back_populates="tasks",
     )

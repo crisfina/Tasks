@@ -4,3 +4,4 @@ class EventType(Enum):
     REWARD = "reward"
     PENALTY = "penalty"
     MANUAL = "manual"
+    PURCHASE = "purchase"
