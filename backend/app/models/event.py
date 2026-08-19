@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -16,7 +16,9 @@ if TYPE_CHECKING:
 class Event(Base):
     __tablename__ = "events"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
 
     name: Mapped[str] = mapped_column(
         String(255),
@@ -44,6 +46,11 @@ class Event(Base):
 
     default_points: Mapped[int] = mapped_column(
         Integer,
+    )
+
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
     )
 
     household: Mapped["Household | None"] = relationship(

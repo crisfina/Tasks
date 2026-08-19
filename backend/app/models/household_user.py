@@ -10,7 +10,7 @@ from app.enums.household_role import HouseholdRole
 if TYPE_CHECKING:
     from app.models.household import Household
     from app.models.user import User
-    from aap.models.event import Event
+
 
 
 class HouseholdUser(Base):
@@ -44,6 +44,3 @@ class HouseholdUser(Base):
         back_populates="household_memberships",
     )
 
-    events: Mapped[list["Event"]] = relationship(
-        back_populates="household",
-    )

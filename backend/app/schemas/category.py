@@ -7,8 +7,7 @@ from pydantic import (
     StringConstraints,
 )
 
-
-RoomName = Annotated[
+CategoryName = Annotated[
     str,
     StringConstraints(
         strip_whitespace=True,
@@ -17,12 +16,20 @@ RoomName = Annotated[
     ),
 ]
 
-Color = Annotated[
+IconPath = Annotated[
     str,
     StringConstraints(
         strip_whitespace=True,
-        pattern=r"^#[0-9A-Fa-f]{6}$",
+        min_length=1,
+        max_length=255,
     ),
+]
+
+Color = Annotated[
+    str,
+    StringConstraints(
+        pattern=r"^#[0-9A-Fa-f]{6}$",
+    )
 ]
 
 PositiveId = Annotated[
@@ -35,26 +42,24 @@ NonNegativeInteger = Annotated[
     Field(ge=0),
 ]
 
-
-class RoomBase(BaseModel):
-    name: RoomName
+class CategoryBase(BaseModel):
+    name: CategoryName
+    icon: IconPath = "/images/default-category.svg"
     color: Color = "#FFFFFF"
     display_order: NonNegativeInteger | None = None
 
-
-class RoomCreate(RoomBase):
+class CategoryCreate(CategoryBase):
     pass
 
-
-class RoomRead(RoomBase):
+class CategoryRead(CategoryBase):
     id: PositiveId
     household_id: PositiveId
     is_active: bool
 
     model_config = ConfigDict(from_attributes=True)
 
-
-class RoomUpdate(BaseModel):
-    name: RoomName | None = None
+class CategoryUpdate(BaseModel):
+    name: CategoryName | None = None
+    icon: IconPath | None = None
     color: Color | None = None
     display_order: NonNegativeInteger | None = None
