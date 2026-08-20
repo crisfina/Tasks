@@ -1,10 +1,7 @@
 from typing import Annotated
 
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    Field,
-)
+from pydantic import BaseModel, ConfigDict, Field
+
 
 PositiveId = Annotated[
     int,
@@ -30,5 +27,6 @@ class TaskAssignmentUserRead(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 class TaskAssignmentUserUpdate(BaseModel):
-    order: NonNegativeInteger | None
+    order: NonNegativeInteger | None = None
