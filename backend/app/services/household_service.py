@@ -92,7 +92,7 @@ def get_membership_or_raise(
     return membership
 
 
-def require_household_admin(
+def require_household_owner(
     db: Session,
     household_id: int,
     user_id: int,
@@ -105,10 +105,35 @@ def require_household_admin(
 
     if (
         membership is None
-        or membership.role != HouseholdRole.ADMIN
+        or membership.role != HouseholdRole.OWNER
     ):
         raise AuthorizationError(
-            ErrorCode.HOUSEHOLD_ADMIN_REQUIRED,
+            ErrorCode.HOUSEHOLD_OWNER_REQUIRED,
+        )
+
+    return membership
+
+
+def require_household_manager(
+    db: Session,
+    household_id: int,
+    user_id: int,
+) -> HouseholdUser:
+    membership = get_membership(
+        db,
+        household_id,
+        user_id,
+    )
+
+    if (
+        membership is None
+        or membership.role not in (
+            HouseholdRole.OWNER,
+            HouseholdRole.MANAGER,
+        )
+    ):
+        raise AuthorizationError(
+            ErrorCode.HOUSEHOLD_MANAGER_REQUIRED,
         )
 
     return membership
@@ -129,7 +154,7 @@ def create_household(
     membership = HouseholdUser(
         household_id=household.id,
         user_id=creator.id,
-        role=HouseholdRole.ADMIN,
+        role=HouseholdRole.OWNER,
     )
 
     db.add(membership)
@@ -150,10 +175,47 @@ def get_user_households(
             HouseholdUser.user_id == user_id,
             Household.is_active.is_(True),
         )
-        .order_by(Household.name)
+        .order_by(
+            Household.name,
+            Household.id,
+        )
     )
 
-    return list(db.scalars(statement).all())
+    return list(
+        db.scalars(statement).all(),
+    )
+
+
+def get_household_members(
+    db: Session,
+    household_id: int,
+    actor_id: int,
+) -> list[HouseholdUser]:
+    get_household_or_raise(
+        db,
+        household_id,
+    )
+
+    get_membership_or_raise(
+        db,
+        household_id,
+        actor_id,
+    )
+
+    statement = (
+        select(HouseholdUser)
+        .where(
+            HouseholdUser.household_id == household_id,
+        )
+        .order_by(
+            HouseholdUser.joined_at,
+            HouseholdUser.user_id,
+        )
+    )
+
+    return list(
+        db.scalars(statement).all(),
+    )
 
 
 def update_household(
@@ -167,7 +229,7 @@ def update_household(
         household_id,
     )
 
-    require_household_admin(
+    require_household_owner(
         db,
         household_id,
         actor_id,
@@ -197,7 +259,7 @@ def deactivate_household(
         household_id,
     )
 
-    require_household_admin(
+    require_household_owner(
         db,
         household_id,
         actor_id,
@@ -218,13 +280,14 @@ def restore_household(
         include_inactive=True,
     )
 
-    require_household_admin(
+    require_household_owner(
         db,
         household_id,
         actor_id,
     )
 
     household.is_active = True
+
     db.commit()
     db.refresh(household)
 
@@ -242,7 +305,7 @@ def add_household_member(
         household_id,
     )
 
-    require_household_admin(
+    require_household_owner(
         db,
         household_id,
         actor_id,
@@ -276,7 +339,6 @@ def add_household_member(
         db.commit()
     except IntegrityError as error:
         db.rollback()
-
         raise ConflictError(
             ErrorCode.USER_ALREADY_HOUSEHOLD_MEMBER,
         ) from error
@@ -286,7 +348,7 @@ def add_household_member(
     return membership
 
 
-def _count_household_admins(
+def _count_household_owners(
     db: Session,
     household_id: int,
 ) -> int:
@@ -295,7 +357,7 @@ def _count_household_admins(
         .select_from(HouseholdUser)
         .where(
             HouseholdUser.household_id == household_id,
-            HouseholdUser.role == HouseholdRole.ADMIN,
+            HouseholdUser.role == HouseholdRole.OWNER,
         )
     )
 
@@ -314,7 +376,7 @@ def update_household_member(
         household_id,
     )
 
-    require_household_admin(
+    require_household_owner(
         db,
         household_id,
         actor_id,
@@ -326,20 +388,20 @@ def update_household_member(
         user_id,
     )
 
-    is_removing_admin_role = (
-        membership.role == HouseholdRole.ADMIN
-        and data.role != HouseholdRole.ADMIN
+    is_removing_owner_role = (
+        membership.role == HouseholdRole.OWNER
+        and data.role != HouseholdRole.OWNER
     )
 
     if (
-        is_removing_admin_role
-        and _count_household_admins(
+        is_removing_owner_role
+        and _count_household_owners(
             db,
             household_id,
         ) <= 1
     ):
         raise BusinessRuleError(
-            ErrorCode.LAST_HOUSEHOLD_ADMIN,
+            ErrorCode.LAST_HOUSEHOLD_OWNER,
         )
 
     membership.role = data.role
@@ -361,7 +423,7 @@ def remove_household_member(
         household_id,
     )
 
-    require_household_admin(
+    require_household_owner(
         db,
         household_id,
         actor_id,
@@ -374,14 +436,14 @@ def remove_household_member(
     )
 
     if (
-        membership.role == HouseholdRole.ADMIN
-        and _count_household_admins(
+        membership.role == HouseholdRole.OWNER
+        and _count_household_owners(
             db,
             household_id,
         ) <= 1
     ):
         raise BusinessRuleError(
-            ErrorCode.LAST_HOUSEHOLD_ADMIN,
+            ErrorCode.LAST_HOUSEHOLD_OWNER,
         )
 
     db.delete(membership)

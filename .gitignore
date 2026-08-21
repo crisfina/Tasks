@@ -1,13 +1,36 @@
-# Python virtual environment
+# Python virtual environments
 backend/.venv/
+.venv/
+venv/
 
 # Python cache
 __pycache__/
 *.py[cod]
+*$py.class
 
-# Environment variables
+# Environment variables and secrets
 .env
-backend/.env
+.env.*
+!.env.example
+
+# Python tests and analysis
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# Angular and Node
+node_modules/
+.angular/
+frontend/dist/
+frontend/coverage/
 
 # IDEs
 .vscode/
@@ -17,13 +40,7 @@ backend/.env
 .DS_Store
 Thumbs.db
 
-# Test cache
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Alembic cache
-alembic/__pycache__/
-
-# Logs
+# Logs and temporary files
 *.log
+*.tmp
+*.temp

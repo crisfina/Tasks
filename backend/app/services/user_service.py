@@ -8,7 +8,10 @@ from app.core.exceptions import (
     ErrorCode,
     NotFoundError,
 )
-from app.core.security import hash_password, verify_password
+from app.core.security import (
+    hash_password,
+    verify_password,
+)
 from app.models.user import User
 from app.schemas.user import (
     UserCreate,
@@ -54,6 +57,27 @@ def get_user_or_raise(
     return user
 
 
+def get_users(
+    db: Session,
+    include_inactive: bool = False,
+) -> list[User]:
+    statement = select(User)
+
+    if not include_inactive:
+        statement = statement.where(
+            User.is_active.is_(True),
+        )
+
+    statement = statement.order_by(
+        User.username,
+        User.id,
+    )
+
+    return list(
+        db.scalars(statement).all(),
+    )
+
+
 def get_user_by_identifier(
     db: Session,
     identifier: str,
@@ -62,8 +86,10 @@ def get_user_by_identifier(
 
     statement = select(User).where(
         or_(
-            func.lower(User.username) == normalized_identifier,
-            func.lower(User.email) == normalized_identifier,
+            func.lower(User.username)
+            == normalized_identifier,
+            func.lower(User.email)
+            == normalized_identifier,
         ),
         User.is_active.is_(True),
     )
@@ -81,12 +107,14 @@ def _ensure_unique_user_fields(
 
     if username is not None:
         conditions.append(
-            func.lower(User.username) == username.lower(),
+            func.lower(User.username)
+            == username.lower(),
         )
 
     if email is not None:
         conditions.append(
-            func.lower(User.email) == email.lower(),
+            func.lower(User.email)
+            == email.lower(),
         )
 
     if not conditions:
@@ -124,11 +152,15 @@ def create_user(
         exclude_none=True,
     )
 
-    user_data["email"] = str(data.email).lower()
+    user_data["email"] = str(
+        data.email,
+    ).lower()
 
     user = User(
         **user_data,
-        password_hash=hash_password(data.password),
+        password_hash=hash_password(
+            data.password,
+        ),
     )
 
     db.add(user)
@@ -137,7 +169,6 @@ def create_user(
         db.commit()
     except IntegrityError as error:
         db.rollback()
-
         raise ConflictError(
             ErrorCode.USERNAME_OR_EMAIL_EXISTS,
         ) from error
@@ -166,7 +197,7 @@ def update_user(
 
     if "email" in changes:
         changes["email"] = str(
-            changes["email"]
+            changes["email"],
         ).lower()
 
     for field, value in changes.items():
@@ -176,7 +207,6 @@ def update_user(
         db.commit()
     except IntegrityError as error:
         db.rollback()
-
         raise ConflictError(
             ErrorCode.USERNAME_OR_EMAIL_EXISTS,
         ) from error
@@ -205,7 +235,7 @@ def update_user_admin(
 
     if "email" in changes:
         changes["email"] = str(
-            changes["email"]
+            changes["email"],
         ).lower()
 
     for field, value in changes.items():
@@ -215,7 +245,6 @@ def update_user_admin(
         db.commit()
     except IntegrityError as error:
         db.rollback()
-
         raise ConflictError(
             ErrorCode.USERNAME_OR_EMAIL_EXISTS,
         ) from error
@@ -259,7 +288,6 @@ def deactivate_user(
         )
 
     user.is_active = False
-
     db.commit()
 
 

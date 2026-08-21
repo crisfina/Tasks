@@ -1,18 +1,20 @@
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.exceptions import (
     AuthenticationError,
     ErrorCode,
 )
-
 from app.core.security import (
     create_access_token,
     verify_password,
 )
-
 from app.models.user import User
 from app.schemas.auth import LoginRequest, TokenRead
-from app.services.user_service import get_user_by_identifier
+from app.services.user_service import (
+    get_user_by_identifier,
+)
+
 
 def authenticate_user(
     db: Session,
@@ -32,19 +34,20 @@ def authenticate_user(
         data.password,
         user.password_hash,
     ):
-
         raise AuthenticationError(
             ErrorCode.INVALID_PASSWORD,
         )
 
     return user
 
+
 def create_token_response(
-        user: User,
-) -> TokenRead: 
+    user: User,
+) -> TokenRead:
     access_token = create_access_token(
-    user.id,
-)
+        user.id,
+    )
+
     return TokenRead(
         access_token=access_token,
         expires_in=(

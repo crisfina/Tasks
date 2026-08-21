@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Self
 
 from pydantic import (
     BaseModel,
@@ -7,6 +7,7 @@ from pydantic import (
     Field,
     StringConstraints,
     field_validator,
+    model_validator,
 )
 from pydantic_core import PydanticCustomError
 
@@ -64,7 +65,7 @@ class TaskBase(BaseModel):
     difficulty: Difficulty
     priority: Priority
     urgency: Urgency
-    repeat_type: RepeatType
+    repeat_type: RepeatType | None = None
     repeat_interval: PositiveInteger | None = None
     days_before_due: NonNegativeInteger | None = None
     days_until_due: NonNegativeInteger | None = None
@@ -72,6 +73,19 @@ class TaskBase(BaseModel):
     household_id: PositiveId | None = None
     assignment_mode: AssignmentMode | None = None
     display_order: NonNegativeInteger | None = None
+
+    @model_validator(mode="after")
+    def validate_recurrence(self) -> Self:
+        if (
+            self.repeat_type is None
+            and self.repeat_interval is not None
+        ):
+            raise PydanticCustomError(
+                "repeat_interval_requires_repeat_type",
+                "repeat_interval_requires_repeat_type",
+            )
+
+        return self
 
 
 class TaskCreate(TaskBase):
@@ -88,7 +102,7 @@ class TaskCreate(TaskBase):
         if len(user_ids) != len(set(user_ids)):
             raise PydanticCustomError(
                 "assigned_users_duplicate",
-                "Assigned users cannot contain duplicates",
+                "assigned_users_duplicate",
             )
 
         return user_ids
@@ -137,7 +151,21 @@ class TaskUpdate(BaseModel):
         ):
             raise PydanticCustomError(
                 "assigned_users_duplicate",
-                "Assigned users cannot contain duplicates",
+                "assigned_users_duplicate",
             )
 
         return user_ids
+
+    @model_validator(mode="after")
+    def validate_recurrence(self) -> Self:
+        if (
+            "repeat_type" in self.model_fields_set
+            and self.repeat_type is None
+            and self.repeat_interval is not None
+        ):
+            raise PydanticCustomError(
+                "repeat_interval_requires_repeat_type",
+                "repeat_interval_requires_repeat_type",
+            )
+
+        return self

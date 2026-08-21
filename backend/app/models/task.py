@@ -1,7 +1,14 @@
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Text
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Enum,
+    ForeignKey,
+    String,
+    Text,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -26,7 +33,9 @@ if TYPE_CHECKING:
 class Task(Base):
     __tablename__ = "tasks"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
 
     title: Mapped[str] = mapped_column(
         String(200),
@@ -58,8 +67,9 @@ class Task(Base):
         Enum(Urgency, name="urgency"),
     )
 
-    repeat_type: Mapped[RepeatType] = mapped_column(
+    repeat_type: Mapped[RepeatType | None] = mapped_column(
         Enum(RepeatType, name="repeat_type"),
+        nullable=True,
     )
 
     repeat_interval: Mapped[int | None] = mapped_column()
