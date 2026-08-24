@@ -26,7 +26,26 @@ class ErrorCode(str, Enum):
     HOUSEHOLD_MANAGER_REQUIRED = (
         "household_manager_required"
     )
-    LAST_HOUSEHOLD_OWNER = "last_household_owner"
+
+    LAST_HOUSEHOLD_OWNER = (
+        "last_household_owner"
+    )
+
+    HOUSEHOLD_INVITATION_NOT_FOUND = (
+        "household_invitation_not_found"
+    )
+
+    HOUSEHOLD_INVITATION_EXPIRED = (
+        "household_invitation_expired"
+    )
+
+    HOUSEHOLD_INVITATION_ALREADY_ACCEPTED = (
+        "household_invitation_already_accepted"
+    )
+
+    HOUSEHOLD_INVITATION_REVOKED = (
+        "household_invitation_revoked"
+    )
 
     CATEGORY_NOT_FOUND = "category_not_found"
     CATEGORY_NAME_EXISTS = "category_name_exists"

@@ -10,4 +10,4 @@ from .user import User
 from .user_statistics import UserStatistics
 from .household import Household
 from .household_user import HouseholdUser
-
+from .household_invitation import HouseholdInvitation

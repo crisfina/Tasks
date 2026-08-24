@@ -1,3 +1,7 @@
+from datetime import UTC, datetime, timedelta
+from hashlib import sha256
+import secrets
+
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -11,17 +15,25 @@ from app.core.exceptions import (
 )
 from app.enums.household_role import HouseholdRole
 from app.models.household import Household
+from app.models.household_invitation import HouseholdInvitation
 from app.models.household_user import HouseholdUser
 from app.models.user import User
 from app.schemas.household import (
     HouseholdCreate,
     HouseholdUpdate,
 )
+from app.schemas.household_invitation import (
+    HouseholdInvitationAccept,
+    HouseholdInvitationCreate,
+)
 from app.schemas.household_user import (
     HouseholdUserCreate,
     HouseholdUserUpdate,
 )
 from app.services.user_service import get_user_or_raise
+
+
+INVITATION_EXPIRATION_DAYS = 7
 
 
 def get_household_by_id(
@@ -287,7 +299,6 @@ def restore_household(
     )
 
     household.is_active = True
-
     db.commit()
     db.refresh(household)
 
@@ -339,6 +350,7 @@ def add_household_member(
         db.commit()
     except IntegrityError as error:
         db.rollback()
+
         raise ConflictError(
             ErrorCode.USER_ALREADY_HOUSEHOLD_MEMBER,
         ) from error
@@ -405,7 +417,6 @@ def update_household_member(
         )
 
     membership.role = data.role
-
     db.commit()
     db.refresh(membership)
 
@@ -448,3 +459,141 @@ def remove_household_member(
 
     db.delete(membership)
     db.commit()
+
+
+def _normalize_invitation_code(
+    code: str,
+) -> str:
+    return code.replace("-", "").replace(" ", "").upper()
+
+
+def _hash_invitation_code(
+    code: str,
+) -> str:
+    normalized_code = _normalize_invitation_code(code)
+
+    return sha256(
+        normalized_code.encode("utf-8"),
+    ).hexdigest()
+
+
+def _generate_invitation_code() -> str:
+    raw_code = secrets.token_hex(10).upper()
+
+    return "-".join(
+        (
+            raw_code[0:5],
+            raw_code[5:10],
+            raw_code[10:15],
+            raw_code[15:20],
+        ),
+    )
+
+
+def create_household_invitation(
+    db: Session,
+    household_id: int,
+    actor_id: int,
+    data: HouseholdInvitationCreate,
+) -> tuple[HouseholdInvitation, str]:
+    get_household_or_raise(
+        db,
+        household_id,
+    )
+
+    require_household_owner(
+        db,
+        household_id,
+        actor_id,
+    )
+
+    code = _generate_invitation_code()
+
+    invitation = HouseholdInvitation(
+        household_id=household_id,
+        created_by_user_id=actor_id,
+        role=data.role,
+        code_hash=_hash_invitation_code(code),
+        expires_at=datetime.now(UTC) + timedelta(
+            days=INVITATION_EXPIRATION_DAYS,
+        ),
+    )
+
+    db.add(invitation)
+    db.commit()
+    db.refresh(invitation)
+
+    return invitation, code
+
+
+def accept_household_invitation(
+    db: Session,
+    actor_id: int,
+    data: HouseholdInvitationAccept,
+) -> HouseholdUser:
+    code_hash = _hash_invitation_code(data.code)
+
+    statement = (
+        select(HouseholdInvitation)
+        .where(
+            HouseholdInvitation.code_hash == code_hash,
+        )
+        .with_for_update()
+    )
+
+    invitation = db.scalar(statement)
+
+    if invitation is None:
+        raise NotFoundError(
+            ErrorCode.HOUSEHOLD_INVITATION_NOT_FOUND,
+        )
+
+    if invitation.revoked_at is not None:
+        raise BusinessRuleError(
+            ErrorCode.HOUSEHOLD_INVITATION_REVOKED,
+        )
+
+    if invitation.accepted_at is not None:
+        raise ConflictError(
+            ErrorCode.HOUSEHOLD_INVITATION_ALREADY_ACCEPTED,
+        )
+
+    if invitation.expires_at <= datetime.now(UTC):
+        raise BusinessRuleError(
+            ErrorCode.HOUSEHOLD_INVITATION_EXPIRED,
+        )
+
+    existing_membership = get_membership(
+        db,
+        invitation.household_id,
+        actor_id,
+    )
+
+    if existing_membership is not None:
+        raise ConflictError(
+            ErrorCode.USER_ALREADY_HOUSEHOLD_MEMBER,
+        )
+
+    membership = HouseholdUser(
+        household_id=invitation.household_id,
+        user_id=actor_id,
+        role=invitation.role,
+    )
+
+    invitation.accepted_by_user_id = actor_id
+    invitation.accepted_at = datetime.now(UTC)
+
+    db.add(membership)
+
+    try:
+        db.commit()
+    except IntegrityError as error:
+        db.rollback()
+
+        raise ConflictError(
+            ErrorCode.USER_ALREADY_HOUSEHOLD_MEMBER,
+        ) from error
+
+    db.refresh(membership)
+
+    return membership

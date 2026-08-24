@@ -19,14 +19,22 @@ from app.schemas.household import (
     HouseholdRead,
     HouseholdUpdate,
 )
+from app.schemas.household_invitation import (
+    HouseholdInvitationAccept,
+    HouseholdInvitationCreate,
+    HouseholdInvitationCreated,
+    HouseholdInvitationRead,
+)
 from app.schemas.household_user import (
     HouseholdUserCreate,
     HouseholdUserRead,
     HouseholdUserUpdate,
 )
 from app.services.household_service import (
+    accept_household_invitation,
     add_household_member,
     create_household,
+    create_household_invitation,
     deactivate_household,
     get_household_members,
     get_household_or_raise,
@@ -85,6 +93,66 @@ def create_new_household(
         db,
         data,
         current_user,
+    )
+
+
+@router.post(
+    "/invitations/accept",
+    response_model=HouseholdUserRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def accept_invitation(
+    data: HouseholdInvitationAccept,
+    db: Annotated[
+        Session,
+        Depends(get_db),
+    ],
+    current_user: Annotated[
+        User,
+        Depends(get_current_user),
+    ],
+) -> HouseholdUser:
+    return accept_household_invitation(
+        db,
+        current_user.id,
+        data,
+    )
+
+
+@router.post(
+    "/{household_id}/invitations",
+    response_model=HouseholdInvitationCreated,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_invitation(
+    household_id: Annotated[
+        int,
+        Path(gt=0),
+    ],
+    data: HouseholdInvitationCreate,
+    db: Annotated[
+        Session,
+        Depends(get_db),
+    ],
+    current_user: Annotated[
+        User,
+        Depends(get_current_user),
+    ],
+) -> HouseholdInvitationCreated:
+    invitation, code = create_household_invitation(
+        db,
+        household_id,
+        current_user.id,
+        data,
+    )
+
+    invitation_data = HouseholdInvitationRead.model_validate(
+        invitation,
+    ).model_dump()
+
+    return HouseholdInvitationCreated(
+        **invitation_data,
+        code=code,
     )
 
 
