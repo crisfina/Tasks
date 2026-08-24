@@ -8,21 +8,23 @@ from app.db.base import Base
 from app.enums.user_role import UserRole
 
 
-
 if TYPE_CHECKING:
+    from app.models.category import Category
+    from app.models.event import Event
+    from app.models.household_user import HouseholdUser
     from app.models.point_transaction import PointTransaction
     from app.models.task import Task
     from app.models.task_assignment_user import TaskAssignmentUser
     from app.models.task_occurrence import TaskOccurrence
     from app.models.user_statistics import UserStatistics
-    from app.models.household_user import HouseholdUser
-    from app.models.event import Event
 
 
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
 
     username: Mapped[str] = mapped_column(
         String(50),
@@ -35,7 +37,7 @@ class User(Base):
     )
 
     password_hash: Mapped[str] = mapped_column(
-        String(255)
+        String(255),
     )
 
     color: Mapped[str] = mapped_column(
@@ -103,3 +105,6 @@ class User(Base):
         back_populates="user",
     )
 
+    categories: Mapped[list["Category"]] = relationship(
+        back_populates="user",
+    )

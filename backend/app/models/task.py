@@ -21,6 +21,7 @@ from app.enums import (
     Visibility,
 )
 
+
 if TYPE_CHECKING:
     from app.models.category import Category
     from app.models.household import Household
@@ -95,6 +96,11 @@ class Task(Base):
     )
 
     display_order: Mapped[int | None] = mapped_column()
+
+    awards_points: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+    )
 
     is_active: Mapped[bool] = mapped_column(
         Boolean,

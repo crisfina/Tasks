@@ -73,6 +73,7 @@ class TaskBase(BaseModel):
     household_id: PositiveId | None = None
     assignment_mode: AssignmentMode | None = None
     display_order: NonNegativeInteger | None = None
+    awards_points: bool = True
 
     @model_validator(mode="after")
     def validate_recurrence(self) -> Self:
@@ -118,7 +119,9 @@ class TaskRead(TaskBase):
         default_factory=list,
     )
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
 
 
 class TaskUpdate(BaseModel):
@@ -137,6 +140,7 @@ class TaskUpdate(BaseModel):
     visibility: Visibility | None = None
     assignment_mode: AssignmentMode | None = None
     display_order: NonNegativeInteger | None = None
+    awards_points: bool | None = None
     assigned_user_ids: list[PositiveId] | None = None
 
     @field_validator("assigned_user_ids")

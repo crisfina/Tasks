@@ -1,11 +1,14 @@
-from typing import Annotated
+from typing import Annotated, Self
 
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
     StringConstraints,
+    model_validator,
 )
+from pydantic_core import PydanticCustomError
+
 
 CategoryName = Annotated[
     str,
@@ -29,7 +32,7 @@ Color = Annotated[
     str,
     StringConstraints(
         pattern=r"^#[0-9A-Fa-f]{6}$",
-    )
+    ),
 ]
 
 PositiveId = Annotated[
@@ -42,21 +45,41 @@ NonNegativeInteger = Annotated[
     Field(ge=0),
 ]
 
+
 class CategoryBase(BaseModel):
     name: CategoryName
     icon: IconPath = "/images/default-category.svg"
     color: Color = "#FFFFFF"
     display_order: NonNegativeInteger | None = None
 
+
 class CategoryCreate(CategoryBase):
     pass
 
+
 class CategoryRead(CategoryBase):
     id: PositiveId
-    household_id: PositiveId
+    household_id: PositiveId | None
+    user_id: PositiveId | None
     is_active: bool
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+
+    @model_validator(mode="after")
+    def validate_owner(self) -> Self:
+        has_household = self.household_id is not None
+        has_user = self.user_id is not None
+
+        if has_household == has_user:
+            raise PydanticCustomError(
+                "category_owner_invalid",
+                "A category must have exactly one owner",
+            )
+
+        return self
+
 
 class CategoryUpdate(BaseModel):
     name: CategoryName | None = None

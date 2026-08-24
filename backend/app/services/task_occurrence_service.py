@@ -165,6 +165,7 @@ def update_task_occurrence(
         "available_from",
         occurrence.available_from,
     )
+
     due_date = changes.get(
         "due_date",
         occurrence.due_date,
@@ -406,10 +407,14 @@ def complete_task_occurrence(
     )
 
     try:
-        create_task_occurrence_transaction(
-            db,
-            occurrence,
-        )
+        if occurrence.task.awards_points:
+            create_task_occurrence_transaction(
+                db,
+                occurrence,
+            )
+        else:
+            occurrence.awarded_points = None
+            db.commit()
     except Exception:
         db.rollback()
         raise

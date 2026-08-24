@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     ForeignKey,
     Integer,
     String,
@@ -15,22 +16,42 @@ from app.db.base import Base
 if TYPE_CHECKING:
     from app.models.household import Household
     from app.models.task import Task
+    from app.models.user import User
 
 
 class Category(Base):
     __tablename__ = "categories"
     __table_args__ = (
+        CheckConstraint(
+            "("
+            "household_id IS NOT NULL AND user_id IS NULL"
+            ") OR ("
+            "household_id IS NULL AND user_id IS NOT NULL"
+            ")",
+            name="ck_category_single_owner",
+        ),
         UniqueConstraint(
             "household_id",
             "name",
             name="uq_category_household_name",
         ),
+        UniqueConstraint(
+            "user_id",
+            "name",
+            name="uq_category_user_name",
+        ),
     )
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
 
-    household_id: Mapped[int] = mapped_column(
+    household_id: Mapped[int | None] = mapped_column(
         ForeignKey("households.id"),
+    )
+
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id"),
     )
 
     name: Mapped[str] = mapped_column(
@@ -56,7 +77,11 @@ class Category(Base):
         Integer,
     )
 
-    household: Mapped["Household"] = relationship(
+    household: Mapped["Household | None"] = relationship(
+        back_populates="categories",
+    )
+
+    user: Mapped["User | None"] = relationship(
         back_populates="categories",
     )
 

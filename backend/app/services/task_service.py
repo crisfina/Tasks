@@ -281,20 +281,25 @@ def _validate_category(
     db: Session,
     category_id: int | None,
     household_id: int | None,
+    user_id: int,
 ) -> None:
     if category_id is None:
         return
 
     if household_id is None:
-        raise BusinessRuleError(
-            ErrorCode.TASK_HOUSEHOLD_REQUIRED,
+        statement = select(Category.id).where(
+            Category.id == category_id,
+            Category.user_id == user_id,
+            Category.household_id.is_(None),
+            Category.is_active.is_(True),
         )
-
-    statement = select(Category.id).where(
-        Category.id == category_id,
-        Category.household_id == household_id,
-        Category.is_active.is_(True),
-    )
+    else:
+        statement = select(Category.id).where(
+            Category.id == category_id,
+            Category.household_id == household_id,
+            Category.user_id.is_(None),
+            Category.is_active.is_(True),
+        )
 
     if db.scalar(statement) is None:
         raise BusinessRuleError(
@@ -490,6 +495,7 @@ def create_task(
         db,
         category_id,
         household_id,
+        created_by,
     )
     _validate_room(
         db,
@@ -603,6 +609,7 @@ def update_task(
         db,
         category_id,
         task.household_id,
+        task.created_by,
     )
     _validate_room(
         db,

@@ -19,12 +19,18 @@ from app.schemas.category import (
     CategoryUpdate,
 )
 from app.services.category_service import (
-    create_category,
-    deactivate_category,
-    get_category_or_raise,
+    create_household_category,
+    create_personal_category,
+    deactivate_household_category,
+    deactivate_personal_category,
     get_household_categories,
-    restore_category,
-    update_category,
+    get_household_category_or_raise,
+    get_personal_categories,
+    get_personal_category_or_raise,
+    restore_household_category,
+    restore_personal_category,
+    update_household_category,
+    update_personal_category,
 )
 from app.services.household_service import (
     get_household_or_raise,
@@ -33,16 +39,164 @@ from app.services.household_service import (
 
 
 router = APIRouter(
-    prefix="/households/{household_id}/categories",
     tags=["categories"],
 )
 
 
 @router.get(
-    "",
+    "/categories",
     response_model=list[CategoryRead],
 )
-def list_categories(
+def list_personal_categories(
+    db: Annotated[
+        Session,
+        Depends(get_db),
+    ],
+    current_user: Annotated[
+        User,
+        Depends(get_current_user),
+    ],
+) -> list[Category]:
+    return get_personal_categories(
+        db,
+        current_user.id,
+    )
+
+
+@router.post(
+    "/categories",
+    response_model=CategoryRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_new_personal_category(
+    data: CategoryCreate,
+    db: Annotated[
+        Session,
+        Depends(get_db),
+    ],
+    current_user: Annotated[
+        User,
+        Depends(get_current_user),
+    ],
+) -> Category:
+    return create_personal_category(
+        db,
+        current_user.id,
+        data,
+    )
+
+
+@router.get(
+    "/categories/{category_id}",
+    response_model=CategoryRead,
+)
+def get_personal_category(
+    category_id: Annotated[
+        int,
+        Path(gt=0),
+    ],
+    db: Annotated[
+        Session,
+        Depends(get_db),
+    ],
+    current_user: Annotated[
+        User,
+        Depends(get_current_user),
+    ],
+) -> Category:
+    return get_personal_category_or_raise(
+        db,
+        current_user.id,
+        category_id,
+    )
+
+
+@router.patch(
+    "/categories/{category_id}",
+    response_model=CategoryRead,
+)
+def update_existing_personal_category(
+    category_id: Annotated[
+        int,
+        Path(gt=0),
+    ],
+    data: CategoryUpdate,
+    db: Annotated[
+        Session,
+        Depends(get_db),
+    ],
+    current_user: Annotated[
+        User,
+        Depends(get_current_user),
+    ],
+) -> Category:
+    return update_personal_category(
+        db,
+        current_user.id,
+        category_id,
+        data,
+    )
+
+
+@router.delete(
+    "/categories/{category_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_personal_category(
+    category_id: Annotated[
+        int,
+        Path(gt=0),
+    ],
+    db: Annotated[
+        Session,
+        Depends(get_db),
+    ],
+    current_user: Annotated[
+        User,
+        Depends(get_current_user),
+    ],
+) -> Response:
+    deactivate_personal_category(
+        db,
+        current_user.id,
+        category_id,
+    )
+
+    return Response(
+        status_code=status.HTTP_204_NO_CONTENT,
+    )
+
+
+@router.post(
+    "/categories/{category_id}/restore",
+    response_model=CategoryRead,
+)
+def restore_deleted_personal_category(
+    category_id: Annotated[
+        int,
+        Path(gt=0),
+    ],
+    db: Annotated[
+        Session,
+        Depends(get_db),
+    ],
+    current_user: Annotated[
+        User,
+        Depends(get_current_user),
+    ],
+) -> Category:
+    return restore_personal_category(
+        db,
+        current_user.id,
+        category_id,
+    )
+
+
+@router.get(
+    "/households/{household_id}/categories",
+    response_model=list[CategoryRead],
+)
+def list_household_categories(
     household_id: Annotated[
         int,
         Path(gt=0),
@@ -64,11 +218,11 @@ def list_categories(
 
 
 @router.post(
-    "",
+    "/households/{household_id}/categories",
     response_model=CategoryRead,
     status_code=status.HTTP_201_CREATED,
 )
-def create_new_category(
+def create_new_household_category(
     household_id: Annotated[
         int,
         Path(gt=0),
@@ -83,7 +237,7 @@ def create_new_category(
         Depends(get_current_user),
     ],
 ) -> Category:
-    return create_category(
+    return create_household_category(
         db,
         household_id,
         current_user.id,
@@ -92,10 +246,10 @@ def create_new_category(
 
 
 @router.get(
-    "/{category_id}",
+    "/households/{household_id}/categories/{category_id}",
     response_model=CategoryRead,
 )
-def get_category(
+def get_household_category(
     household_id: Annotated[
         int,
         Path(gt=0),
@@ -124,7 +278,7 @@ def get_category(
         current_user.id,
     )
 
-    return get_category_or_raise(
+    return get_household_category_or_raise(
         db,
         household_id,
         category_id,
@@ -132,10 +286,10 @@ def get_category(
 
 
 @router.patch(
-    "/{category_id}",
+    "/households/{household_id}/categories/{category_id}",
     response_model=CategoryRead,
 )
-def update_existing_category(
+def update_existing_household_category(
     household_id: Annotated[
         int,
         Path(gt=0),
@@ -154,7 +308,7 @@ def update_existing_category(
         Depends(get_current_user),
     ],
 ) -> Category:
-    return update_category(
+    return update_household_category(
         db,
         household_id,
         category_id,
@@ -164,10 +318,10 @@ def update_existing_category(
 
 
 @router.delete(
-    "/{category_id}",
+    "/households/{household_id}/categories/{category_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def delete_category(
+def delete_household_category(
     household_id: Annotated[
         int,
         Path(gt=0),
@@ -185,7 +339,7 @@ def delete_category(
         Depends(get_current_user),
     ],
 ) -> Response:
-    deactivate_category(
+    deactivate_household_category(
         db,
         household_id,
         category_id,
@@ -198,10 +352,10 @@ def delete_category(
 
 
 @router.post(
-    "/{category_id}/restore",
+    "/households/{household_id}/categories/{category_id}/restore",
     response_model=CategoryRead,
 )
-def restore_deleted_category(
+def restore_deleted_household_category(
     household_id: Annotated[
         int,
         Path(gt=0),
@@ -219,7 +373,7 @@ def restore_deleted_category(
         Depends(get_current_user),
     ],
 ) -> Category:
-    return restore_category(
+    return restore_household_category(
         db,
         household_id,
         category_id,
