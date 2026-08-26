@@ -1,0 +1,82 @@
+<main class="home-page">
+  <header class="home-header">
+    <a class="home-logo" href="/">Tasks</a>
+
+    <nav class="main-nav" aria-label="Navegación principal">
+      <button type="button" i18n>Inicio</button>
+      <button type="button" i18n>Personales</button>
+      <button type="button" i18n>Mi cuenta</button>
+      <button type="button" (click)="logout()" i18n>Cerrar sesión</button>
+    </nav>
+
+    <button class="menu-button" type="button" aria-label="Abrir menú" i18n-aria-label>☰</button>
+  </header>
+
+  <section class="welcome-section">
+    <p class="eyebrow" i18n>Resumen</p>
+    <h1 i18n>Hola, ¿qué quieres hacer hoy?</h1>
+    <p i18n>Organiza tus tareas personales y las de tu hogar desde un mismo sitio.</p>
+  </section>
+
+  <section class="today-section" aria-labelledby="today-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow" i18n>Mis tareas</p>
+        <h2 id="today-title" i18n>Tareas de hoy</h2>
+      </div>
+
+      <button class="text-link" type="button" i18n>Ver todas</button>
+    </div>
+
+    <div class="empty-state">
+      <h3 i18n>Aún no hay tareas para hoy</h3>
+      <p i18n>Cuando crees una tarea con fecha para hoy aparecerá aquí.</p>
+      <button type="button" i18n>Añadir tarea personal</button>
+    </div>
+  </section>
+
+  <section class="home-grid" aria-label="Secciones principales">
+    <article class="home-card">
+      <p class="eyebrow" i18n>Personales</p>
+      <h2 i18n>Mis tareas personales</h2>
+      <p i18n>Crea y organiza tareas que solo tú puedes ver.</p>
+      <button class="card-link" type="button" i18n>Ir a personales</button>
+    </article>
+
+    @if (hasHousehold()) {
+      <article class="home-card">
+        <p class="eyebrow" i18n>Hogar</p>
+        <h2 i18n>Tareas del hogar</h2>
+        <p i18n>Consulta y organiza las tareas compartidas con tu hogar.</p>
+        <button class="card-link" type="button" i18n>Ir al hogar</button>
+      </article>
+    } @else {
+      <article class="home-card">
+        <p class="eyebrow" i18n>Hogar</p>
+        <h2 i18n>Aún no tienes un hogar</h2>
+        <p i18n>Crea uno para organizar tareas con otras personas o únete con un código de invitación.</p>
+
+        <div class="card-actions">
+          <button type="button" i18n>Crear hogar</button>
+          <button class="secondary-button" type="button" i18n>Introducir invitación</button>
+        </div>
+      </article>
+    }
+
+    <article class="home-card">
+      <p class="eyebrow" i18n>Cuenta</p>
+      <h2 i18n>Mi cuenta</h2>
+      <p i18n>Consulta tus puntos, estadísticas y datos personales.</p>
+      <button class="card-link" type="button" i18n>Ver mi cuenta</button>
+    </article>
+
+    @if (isAdmin()) {
+      <article class="home-card home-card--admin">
+        <p class="eyebrow" i18n>Administración</p>
+        <h2 i18n>Panel de administración</h2>
+        <p i18n>Gestiona los usuarios y la configuración general de la aplicación.</p>
+        <button class="card-link" type="button" i18n>Abrir administración</button>
+      </article>
+    }
+  </section>
+</main>

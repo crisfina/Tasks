@@ -1,0 +1,70 @@
+<main class="register-page">
+  <section class="register-card">
+    <h1>Crear cuenta</h1>
+
+    <p i18n>Empieza a organizar tus tareas.</p>
+
+    <form [formGroup]="registerForm" (ngSubmit)="submit()" novalidate>
+      <label for="username" i18n>Nombre de usuario</label>
+      <input id="username" type="text" autocomplete="username" formControlName="username" />
+
+      @if (registerForm.controls.username.touched && registerForm.controls.username.invalid) {
+        <p class="field-error" i18n>El usuario debe tener al menos 3 caracteres.</p>
+      }
+
+      <label for="email" i18n>Correo electrónico</label>
+      <input id="email" type="email" autocomplete="email" formControlName="email" />
+
+      @if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
+        <p class="field-error" i18n>Introduce un correo electrónico válido.</p>
+      }
+
+      <label for="password" i18n>Contraseña</label>
+      <input id="password" type="password" autocomplete="new-password" formControlName="password" />
+
+      @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
+        <p class="field-error" i18n>La contraseña debe tener al menos 8 caracteres.</p>
+      }
+
+      <label for="confirm-password" i18n>Repite la contraseña</label>
+      <input
+        id="confirm-password"
+        type="password"
+        autocomplete="new-password"
+        formControlName="confirmPassword"
+      />
+
+      @if (
+        registerForm.controls.confirmPassword.touched
+        && registerForm.controls.confirmPassword.invalid
+      ) {
+        <p class="field-error" i18n>Repite la contraseña.</p>
+      }
+
+      @if (errorMessage()) {
+        <p class="form-message form-message--error" aria-live="polite">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      @if (registrationSucceeded()) {
+        <p class="form-message form-message--success" aria-live="polite" i18n>
+          Cuenta creada correctamente. Ya puedes iniciar sesión.
+        </p>
+      }
+
+      <button type="submit" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <span i18n>Creando cuenta…</span>
+        } @else {
+          <span i18n>Crear cuenta</span>
+        }
+      </button>
+    </form>
+
+    <p>
+      <span i18n>¿Ya tienes cuenta?</span>
+      <a href="/" i18n>Iniciar sesión</a>
+    </p>
+  </section>
+</main>

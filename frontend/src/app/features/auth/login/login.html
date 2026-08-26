@@ -1,0 +1,41 @@
+<main class="login-page">
+  <section class="login-card">
+    <h1>Tasks</h1>
+    <p i18n>Organiza tus tareas personales y de hogar.</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="submit()" novalidate>
+      <label for="identifier" i18n>Usuario o correo electrónico</label>
+      <input id="identifier" type="text" autocomplete="username" formControlName="identifier" />
+
+      @if (loginForm.controls.identifier.touched && loginForm.controls.identifier.hasError('required')) {
+        <p class="field-error" i18n>Introduce tu usuario o correo electrónico.</p>
+      }
+
+      <label for="password" i18n>Contraseña</label>
+      <input id="password" type="password" autocomplete="current-password" formControlName="password" />
+
+      @if (loginForm.controls.password.touched && loginForm.controls.password.hasError('required')) {
+        <p class="field-error" i18n>Introduce tu contraseña.</p>
+      }
+
+      @if (errorMessage()) {
+        <p class="form-message form-message--error" aria-live="polite">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      <button type="submit" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <span i18n>Iniciando sesión…</span>
+        } @else {
+          <span i18n>Iniciar sesión</span>
+        }
+      </button>
+    </form>
+
+    <p>
+      <span i18n>¿No tienes cuenta?</span>
+      <a routerLink="/register" i18n>Crear cuenta</a>
+    </p>
+  </section>
+</main>

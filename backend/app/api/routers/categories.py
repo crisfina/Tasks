@@ -223,19 +223,10 @@ def list_household_categories(
     status_code=status.HTTP_201_CREATED,
 )
 def create_new_household_category(
-    household_id: Annotated[
-        int,
-        Path(gt=0),
-    ],
+    household_id: Annotated[int, Path(gt=0)],
     data: CategoryCreate,
-    db: Annotated[
-        Session,
-        Depends(get_db),
-    ],
-    current_user: Annotated[
-        User,
-        Depends(get_current_user),
-    ],
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
 ) -> Category:
     return create_household_category(
         db,
