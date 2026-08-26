@@ -1,0 +1,55 @@
+<main class="task-create-page">
+  <section class="task-create-card" aria-labelledby="page-title">
+    <p class="eyebrow" i18n>Completar tarea</p>
+    <h1 id="page-title" i18n>¿Cuánto tiempo te ha llevado?</h1>
+    <p class="form-introduction" i18n>
+      Guarda el tiempo real para que las estadísticas y los puntos sean correctos.
+    </p>
+
+    <form [formGroup]="completionForm" (ngSubmit)="submit()">
+      <label for="realized-minutes" i18n>Tiempo real (minutos)</label>
+      <input
+        id="realized-minutes"
+        type="number"
+        formControlName="realized_minutes"
+        min="1"
+        required
+      />
+
+      @if (
+        completionForm.controls.realized_minutes.touched &&
+        completionForm.controls.realized_minutes.invalid
+      ) {
+        <p class="field-error" i18n>Introduce un número de minutos mayor que cero.</p>
+      }
+
+      <label for="notes" i18n>Notas (opcional)</label>
+      <textarea
+        id="notes"
+        formControlName="notes"
+        maxlength="2000"
+        rows="4"
+      ></textarea>
+
+      @if (errorMessage()) {
+        <p class="form-message--error" aria-live="polite">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      <div class="form-actions">
+        <button class="secondary-button" type="button" (click)="cancel()" i18n>
+          Cancelar
+        </button>
+
+        <button type="submit" [disabled]="isSubmitting()" i18n>
+          @if (isSubmitting()) {
+            Guardando…
+          } @else {
+            Completar tarea
+          }
+        </button>
+      </div>
+    </form>
+  </section>
+</main>

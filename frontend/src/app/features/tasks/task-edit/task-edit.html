@@ -1,0 +1,140 @@
+<main class="task-create-page">
+  <section class="task-create-card" aria-labelledby="page-title">
+    <p class="eyebrow" i18n>Tarea personal</p>
+    <h1 id="page-title" i18n>Editar tarea</h1>
+
+    @if (isLoading()) {
+      <p i18n>Cargando tarea…</p>
+    } @else {
+      <form [formGroup]="taskForm" (ngSubmit)="submit()">
+        <label for="title" i18n>Título</label>
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          maxlength="200"
+          autocomplete="off"
+        />
+
+        @if (
+          taskForm.controls.title.touched &&
+          taskForm.controls.title.hasError('required')
+        ) {
+          <p class="field-error" i18n>Escribe un título para la tarea.</p>
+        }
+
+        <label for="description" i18n>Descripción (opcional)</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          maxlength="2000"
+          rows="4"
+        ></textarea>
+
+        <label for="category" i18n>Categoría</label>
+        <select id="category" formControlName="category_id">
+        <option [ngValue]="0" i18n>Sin categoría</option>
+
+        @for (category of categories(); track category.id) {
+            <option [ngValue]="category.id">
+            {{ category.name }}
+            </option>
+        }
+        </select>
+
+        <div class="form-grid">
+          <div>
+            <label for="estimated-minutes" i18n>Tiempo estimado (minutos)</label>
+            <input
+              id="estimated-minutes"
+              type="number"
+              formControlName="estimated_minutes"
+              min="1"
+            />
+          </div>
+
+          <div>
+            <label for="difficulty" i18n>Dificultad</label>
+            <select id="difficulty" formControlName="difficulty">
+              <option value="very_easy" i18n>Muy fácil</option>
+              <option value="easy" i18n>Fácil</option>
+              <option value="medium" i18n>Media</option>
+              <option value="hard" i18n>Difícil</option>
+              <option value="very_hard" i18n>Muy difícil</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label for="priority" i18n>Prioridad</label>
+            <select id="priority" formControlName="priority">
+              <option value="very_low" i18n>Muy baja</option>
+              <option value="low" i18n>Baja</option>
+              <option value="medium" i18n>Media</option>
+              <option value="high" i18n>Alta</option>
+              <option value="very_high" i18n>Muy alta</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="urgency" i18n>Urgencia</label>
+            <select id="urgency" formControlName="urgency">
+              <option value="very_low" i18n>Muy baja</option>
+              <option value="low" i18n>Baja</option>
+              <option value="medium" i18n>Media</option>
+              <option value="high" i18n>Alta</option>
+              <option value="very_high" i18n>Muy alta</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="repeat-type" i18n>Repetición</label>
+        <select id="repeat-type" formControlName="repeat_type">
+          <option value="" i18n>No se repite</option>
+          <option value="daily" i18n>Cada cierto número de días</option>
+          <option value="weekly" i18n>Cada cierto número de semanas</option>
+          <option value="biweekly" i18n>Cada cierto número de quincenas</option>
+          <option value="monthly" i18n>Cada cierto número de meses</option>
+          <option value="semesterly" i18n>Cada cierto número de semestres</option>
+          <option value="yearly" i18n>Cada cierto número de años</option>
+        </select>
+
+        @if (taskForm.controls.repeat_type.value) {
+          <label for="repeat-interval" i18n>Repetir cada</label>
+          <input
+            id="repeat-interval"
+            type="number"
+            formControlName="repeat_interval"
+            min="1"
+          />
+        }
+
+        @if (errorMessage()) {
+          <p class="form-message--error" aria-live="polite">
+            {{ errorMessage() }}
+          </p>
+        }
+
+        <div class="form-actions">
+          <button
+            class="secondary-button"
+            type="button"
+            (click)="cancel()"
+            i18n
+          >
+            Cancelar
+          </button>
+
+          <button type="submit" [disabled]="isSubmitting()" i18n>
+            @if (isSubmitting()) {
+              Guardando…
+            } @else {
+              Guardar cambios
+            }
+          </button>
+        </div>
+      </form>
+    }
+  </section>
+</main>

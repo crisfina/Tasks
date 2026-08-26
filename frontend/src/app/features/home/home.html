@@ -4,12 +4,21 @@
 
     <nav class="main-nav" aria-label="Navegación principal">
       <button type="button" i18n>Inicio</button>
-      <button type="button" i18n>Personales</button>
+      <button type="button" (click)="goToPersonalTasks()" i18n>
+        Personales
+      </button>
       <button type="button" i18n>Mi cuenta</button>
       <button type="button" (click)="logout()" i18n>Cerrar sesión</button>
     </nav>
 
-    <button class="menu-button" type="button" aria-label="Abrir menú" i18n-aria-label>☰</button>
+    <button
+      class="menu-button"
+      type="button"
+      aria-label="Abrir menú"
+      i18n-aria-label
+    >
+      ☰
+    </button>
   </header>
 
   <section class="welcome-section">
@@ -25,14 +34,76 @@
         <h2 id="today-title" i18n>Tareas de hoy</h2>
       </div>
 
-      <button class="text-link" type="button" i18n>Ver todas</button>
+      <button class="text-link" type="button" (click)="goToPersonalTasks()" i18n>
+        Ver todas
+      </button>
     </div>
 
-    <div class="empty-state">
-      <h3 i18n>Aún no hay tareas para hoy</h3>
-      <p i18n>Cuando crees una tarea con fecha para hoy aparecerá aquí.</p>
-      <button type="button" i18n>Añadir tarea personal</button>
-    </div>
+    @if (errorMessage()) {
+      <p class="form-message--error" aria-live="polite">
+        {{ errorMessage() }}
+      </p>
+    }
+
+    @if (isLoadingTodayTasks()) {
+      <div class="empty-state">
+        <p i18n>Cargando tareas…</p>
+      </div>
+    } @else if (todayTasks().length === 0) {
+      <div class="empty-state">
+        <h3 i18n>Aún no hay tareas para hoy</h3>
+        <p i18n>Cuando crees una tarea con fecha para hoy aparecerá aquí.</p>
+        <button type="button" (click)="createPersonalTask()" i18n>
+          Añadir tarea personal
+        </button>
+      </div>
+    } @else {
+      <div class="today-task-list">
+        @for (todayTask of todayTasks(); track todayTask.occurrence.id) {
+          <article
+            class="today-task"
+            role="button"
+            tabindex="0"
+            (click)="editTask(todayTask.task.id)"
+            (keydown.enter)="editTask(todayTask.task.id)"
+          >
+            <div>
+              <div class="task-card-header">
+                <h3>{{ todayTask.task.title }}</h3>
+                <span class="task-status" i18n>Pendiente</span>
+              </div>
+
+              @if (todayTask.task.description) {
+                <p>{{ todayTask.task.description }}</p>
+              }
+            </div>
+
+            <div class="today-task-actions">
+              <div class="task-card-buttons">
+                <button
+                  class="task-complete-button"
+                  type="button"
+                  (click)="$event.stopPropagation(); completeTask(todayTask.occurrence.id)"
+                  aria-label="Completar tarea"
+                  i18n-aria-label
+                >
+                  ✓
+                </button>
+
+                <button
+                  class="task-delete-button"
+                  type="button"
+                  (click)="$event.stopPropagation(); deleteTask(todayTask.task)"
+                  i18n
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
   </section>
 
   <section class="home-grid" aria-label="Secciones principales">
@@ -40,7 +111,9 @@
       <p class="eyebrow" i18n>Personales</p>
       <h2 i18n>Mis tareas personales</h2>
       <p i18n>Crea y organiza tareas que solo tú puedes ver.</p>
-      <button class="card-link" type="button" i18n>Ir a personales</button>
+      <button class="card-link" type="button" (click)="goToPersonalTasks()" i18n>
+        Ir a personales
+      </button>
     </article>
 
     @if (hasHousehold()) {

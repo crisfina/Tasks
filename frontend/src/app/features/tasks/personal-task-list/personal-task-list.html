@@ -1,0 +1,152 @@
+<main class="home-page">
+  <header class="home-header">
+    <button class="home-logo" type="button" (click)="goHome()">
+      Tasks
+    </button>
+
+    <nav class="main-nav" aria-label="Navegación principal">
+      <button type="button" (click)="goHome()" i18n>Inicio</button>
+      <button type="button" i18n>Personales</button>
+      <button type="button" (click)="goToCategories()" i18n>Categorías</button>
+      <button type="button" i18n>Mi cuenta</button>
+    </nav>
+
+    <button
+      class="menu-button"
+      type="button"
+      aria-label="Abrir menú"
+      i18n-aria-label
+    >
+      ☰
+    </button>
+  </header>
+
+  <section class="welcome-section">
+    <p class="eyebrow" i18n>Personales</p>
+    <h1 i18n>Mis tareas personales</h1>
+    <p i18n>Todas las tareas que solo tú puedes ver y gestionar.</p>
+  </section>
+
+  <section class="category-filter-section" aria-labelledby="category-filter-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow" i18n>Filtrar</p>
+        <h2 id="category-filter-title" i18n>Categorías</h2>
+      </div>
+
+      <button class="text-link" type="button" (click)="goToCategories()" i18n>
+        Gestionar
+      </button>
+    </div>
+
+    <div class="category-filter-list">
+      <button
+        class="category-filter-card category-filter-card--all"
+        type="button"
+        [class.category-filter-card--selected]="selectedCategoryId() === null"
+        (click)="selectCategory(null)"
+        i18n
+      >
+        Todas
+      </button>
+
+      @for (category of categories(); track category.id) {
+        <button
+          class="category-filter-card"
+          type="button"
+          [class.category-filter-card--selected]="selectedCategoryId() === category.id"
+          [style.background-color]="category.color"
+          (click)="selectCategory(category.id)"
+        >
+          {{ category.name }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="today-section" aria-labelledby="personal-tasks-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow" i18n>Listado</p>
+        <h2 id="personal-tasks-title" i18n>Todas mis tareas</h2>
+      </div>
+
+      <button class="text-link" type="button" (click)="createTask()" i18n>
+        Añadir tarea
+      </button>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="form-message--error" aria-live="polite">
+        {{ errorMessage() }}
+      </p>
+    }
+
+    @if (isLoading()) {
+      <div class="empty-state">
+        <p i18n>Cargando tareas…</p>
+      </div>
+    } @else if (personalTasks().length === 0) {
+      <div class="empty-state">
+        <h3 i18n>Aún no tienes tareas personales</h3>
+        <p i18n>Crea una para empezar a organizarte.</p>
+        <button type="button" (click)="createTask()" i18n>
+          Añadir tarea personal
+        </button>
+      </div>
+    } @else if (filteredPersonalTasks().length === 0) {
+      <div class="empty-state">
+        <h3 i18n>No hay tareas en esta categoría</h3>
+        <p i18n>Prueba a elegir otra categoría o crea una nueva tarea.</p>
+      </div>
+    } @else {
+      <div class="today-task-list">
+        @for (personalTask of filteredPersonalTasks(); track personalTask.task.id) {
+          <article
+            class="today-task"
+            role="button"
+            tabindex="0"
+            (click)="editTask(personalTask.task.id)"
+            (keydown.enter)="editTask(personalTask.task.id)"
+          >
+            <div>
+              <div class="task-card-header">
+                <h3>{{ personalTask.task.title }}</h3>
+                <span class="task-status" i18n>Pendiente</span>
+              </div>
+
+              @if (personalTask.task.description) {
+                <p>{{ personalTask.task.description }}</p>
+              }
+            </div>
+
+            @if (personalTask.nextOccurrence) {
+              <div class="today-task-actions">
+                <div class="task-card-buttons">
+                  <button
+                    class="task-complete-button"
+                    type="button"
+                    (click)="$event.stopPropagation(); completeTask(personalTask.nextOccurrence.id)"
+                    aria-label="Completar tarea"
+                    i18n-aria-label
+                  >
+                    ✓
+                  </button>
+
+                  <button
+                    class="task-delete-button"
+                    type="button"
+                    (click)="$event.stopPropagation(); deleteTask(personalTask.task)"
+                    i18n
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            }
+          </article>
+        }
+      </div>
+    }
+  </section>
+</main>

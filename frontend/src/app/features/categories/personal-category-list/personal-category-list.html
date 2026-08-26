@@ -1,0 +1,121 @@
+<main class="home-page">
+  <header class="home-header">
+    <button class="home-logo" type="button" (click)="goToPersonalTasks()">
+      Tasks
+    </button>
+
+    <nav class="main-nav" aria-label="Navegación principal">
+      <button type="button" (click)="goToPersonalTasks()" i18n>
+        Personales
+      </button>
+      <button type="button" i18n>Categorías</button>
+    </nav>
+
+    <button
+      class="menu-button"
+      type="button"
+      aria-label="Abrir menú"
+      i18n-aria-label
+    >
+      ☰
+    </button>
+  </header>
+
+  <section class="welcome-section">
+    <p class="eyebrow" i18n>Personales</p>
+    <h1 i18n>Mis categorías</h1>
+    <p i18n>Organiza tus tareas personales en categorías.</p>
+  </section>
+
+  <section class="today-section" aria-labelledby="category-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow" i18n>Configuración</p>
+        <h2 id="category-title" i18n>Categorías personales</h2>
+      </div>
+    </div>
+
+    <form
+      class="category-form"
+      [formGroup]="categoryForm"
+      (ngSubmit)="createCategory()"
+    >
+      <div class="category-field">
+        <label for="category-name" i18n>Nombre</label>
+        <input
+          id="category-name"
+          type="text"
+          formControlName="name"
+          maxlength="100"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="category-field category-field--color">
+        <label for="category-color" i18n>Color</label>
+        <input id="category-color" type="color" formControlName="color" />
+      </div>
+
+      <button
+        class="category-submit-button"
+        type="submit"
+        [disabled]="isSubmitting()"
+        i18n
+      >
+        @if (isSubmitting()) {
+          Creando…
+        } @else {
+          Añadir categoría
+        }
+      </button>
+    </form>
+
+    @if (errorMessage()) {
+      <p class="form-message--error" aria-live="polite">
+        {{ errorMessage() }}
+      </p>
+    }
+
+    @if (isLoading()) {
+      <div class="empty-state">
+        <p i18n>Cargando categorías…</p>
+      </div>
+    } @else if (categories().length === 0) {
+      <div class="empty-state">
+        <h3 i18n>Aún no tienes categorías</h3>
+        <p i18n>Crea una para clasificar tus tareas personales.</p>
+      </div>
+    } @else {
+      <div class="today-task-list">
+        @for (category of categories(); track category.id) {
+          <article class="today-task">
+            <div>
+              <h3>{{ category.name }}</h3>
+              <p>{{ category.color }}</p>
+            </div>
+
+            <div class="today-task-actions">
+              <span
+                class="task-status"
+                [style.background-color]="category.color"
+                aria-label="Color de categoría"
+                i18n-aria-label
+              >
+                &nbsp;
+              </span>
+
+              <button
+                class="task-delete-button"
+                type="button"
+                (click)="deleteCategory(category)"
+                i18n
+              >
+                Eliminar
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</main>
