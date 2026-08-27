@@ -15,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor])),
     {
       provide: API_BASE_URL,
-      useValue: 'http://127.0.0.1:8000',
+      useValue: 'https://tasks-mzzm.onrender.com',
     },
     provideRouter(routes),
   ],

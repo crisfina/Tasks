@@ -74,7 +74,7 @@
               </div>
 
               @if (todayTask.task.description) {
-                <p>{{ todayTask.task.description }}</p>
+                <p class="description">{{ todayTask.task.description }}</p>
               }
             </div>
 
@@ -125,12 +125,12 @@
       </article>
     } @else {
       <article class="home-card">
-        <p class="eyebrow" i18n>Hogar</p>
-        <h2 i18n>Aún no tienes un hogar</h2>
+        <p class="eyebrow" i18n>Grupo</p>
+        <h2 i18n>Aún no tienes un grupo</h2>
         <p i18n>Crea uno para organizar tareas con otras personas o únete con un código de invitación.</p>
 
         <div class="card-actions">
-          <button type="button" i18n>Crear hogar</button>
+          <button type="button" i18n>Crear grupo</button>
           <button class="secondary-button" type="button" i18n>Introducir invitación</button>
         </div>
       </article>
