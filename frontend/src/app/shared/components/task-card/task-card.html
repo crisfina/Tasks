@@ -9,6 +9,10 @@
   <div class="task-card__content">
     <h3>{{ task.title }}</h3>
 
+    @if (contextLabel) {
+      <p class="task-card__context">{{ contextLabel }}</p>
+    }
+
     @if (task.description) {
       <p class="task-card__description">{{ task.description }}</p>
     }
