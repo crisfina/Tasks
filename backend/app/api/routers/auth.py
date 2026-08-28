@@ -57,8 +57,8 @@ def login(
 
     return create_token_response(
         user,
+        data,
     )
-
 
 @router.get(
     "/me",

@@ -15,6 +15,10 @@ import {
   TaskOccurrence,
 } from '../../../core/tasks/task.models';
 import { TaskService } from '../../../core/tasks/task.service';
+import {
+  TaskList,
+  TaskListItem,
+} from '../../../shared/components/task-list/task-list';
 
 interface PersonalTask {
   task: Task;
@@ -22,7 +26,7 @@ interface PersonalTask {
 }
 
 @Component({
-  imports: [],
+  imports: [TaskList],
   selector: 'app-personal-task-list',
   styleUrl: './personal-task-list.scss',
   templateUrl: './personal-task-list.html',
@@ -50,6 +54,13 @@ export class PersonalTaskList implements OnInit {
     );
   });
 
+  readonly filteredTaskListItems = computed<TaskListItem[]>(() =>
+    this.filteredPersonalTasks().map((personalTask) => ({
+      task: personalTask.task,
+      occurrence: personalTask.nextOccurrence,
+    })),
+  );
+
   ngOnInit(): void {
     this.loadTasks();
     this.loadCategories();
@@ -68,8 +79,9 @@ export class PersonalTaskList implements OnInit {
   }
 
   completeTask(occurrenceId: number): void {
-    this.router.navigateByUrl(
-      `/task-occurrences/${occurrenceId}/complete`,
+    this.router.navigate(
+      ['/task-occurrences', occurrenceId, 'complete'],
+      { queryParams: { returnTo: 'personales' } },
     );
   }
 

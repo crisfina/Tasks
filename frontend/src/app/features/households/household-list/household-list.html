@@ -1,0 +1,70 @@
+<main class="home-page">
+  <header class="home-header">
+    <button class="home-logo" type="button" (click)="goHome()">Tasks</button>
+
+    <nav class="main-nav" aria-label="Navegación principal">
+      <button type="button" (click)="goHome()" i18n>Inicio</button>
+      <button type="button" i18n>Grupos</button>
+    </nav>
+
+    <button
+      class="menu-button"
+      type="button"
+      aria-label="Abrir menú"
+      i18n-aria-label
+    >
+      ☰
+    </button>
+  </header>
+
+  <section class="welcome-section">
+    <p class="eyebrow" i18n>Compartido</p>
+    <h1 i18n>Mis grupos</h1>
+    <p i18n>Crea un grupo para organizar tareas con otras personas.</p>
+  </section>
+
+  <section class="today-section" aria-labelledby="group-list-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow" i18n>Listado</p>
+        <h2 id="group-list-title" i18n>Grupos</h2>
+      </div>
+
+      <button class="text-link" type="button" (click)="createHousehold()" i18n>
+        Crear grupo
+      </button>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="form-message--error" aria-live="polite">
+        {{ errorMessage() }}
+      </p>
+    }
+
+    @if (isLoading()) {
+      <div class="empty-state">
+        <p i18n>Cargando grupos…</p>
+      </div>
+    } @else if (households().length === 0) {
+      <div class="empty-state">
+        <h3 i18n>Aún no perteneces a ningún grupo</h3>
+        <p i18n>Crea uno para compartir tareas o únete con una invitación.</p>
+
+        <button type="button" (click)="createHousehold()" i18n>
+          Crear grupo
+        </button>
+      </div>
+    } @else {
+      <div class="today-task-list">
+        @for (household of households(); track household.id) {
+          <article class="today-task">
+            <div>
+                <h3>{{ household.name }}</h3>
+                <p i18n>Grupo compartido</p>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</main>

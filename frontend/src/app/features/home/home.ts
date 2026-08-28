@@ -10,6 +10,8 @@ import {
   TaskOccurrence,
 } from '../../core/tasks/task.models';
 import { TaskService } from '../../core/tasks/task.service';
+import { TaskCard } from '../../shared/components/task-card/task-card';
+import { TaskList } from '../../shared/components/task-list/task-list';
 
 interface TodayTask {
   task: Task;
@@ -17,7 +19,7 @@ interface TodayTask {
 }
 
 @Component({
-  imports: [],
+  imports: [TaskCard],
   selector: 'app-home',
   styleUrl: './home.scss',
   templateUrl: './home.html',
@@ -52,6 +54,10 @@ export class Home implements OnInit {
 
   goToPersonalTasks(): void {
     this.router.navigateByUrl('/personales');
+  }
+
+  goToHouseholds(): void {
+    this.router.navigateByUrl('/hogares');
   }
 
   completeTask(occurrenceId: number): void {

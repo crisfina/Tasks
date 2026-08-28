@@ -24,7 +24,9 @@
   <section class="welcome-section">
     <p class="eyebrow" i18n>Resumen</p>
     <h1 i18n>Hola, ¿qué quieres hacer hoy?</h1>
-    <p i18n>Organiza tus tareas personales y las de tu grupo desde un mismo sitio.</p>
+    <p i18n>
+      Organiza tus tareas personales y las de tu grupo desde un mismo sitio.
+    </p>
   </section>
 
   <section class="today-section" aria-labelledby="today-title">
@@ -34,7 +36,12 @@
         <h2 id="today-title" i18n>Tareas de hoy</h2>
       </div>
 
-      <button class="text-link" type="button" (click)="goToPersonalTasks()" i18n>
+      <button
+        class="text-link"
+        type="button"
+        (click)="goToPersonalTasks()"
+        i18n
+      >
         Ver todas
       </button>
     </div>
@@ -60,47 +67,13 @@
     } @else {
       <div class="today-task-list">
         @for (todayTask of todayTasks(); track todayTask.occurrence.id) {
-          <article
-            class="today-task"
-            role="button"
-            tabindex="0"
-            (click)="editTask(todayTask.task.id)"
-            (keydown.enter)="editTask(todayTask.task.id)"
-          >
-            <div>
-              <div class="task-card-header">
-                <h3>{{ todayTask.task.title }}</h3>
-                <span class="task-status" i18n>Pendiente</span>
-              </div>
-
-              @if (todayTask.task.description) {
-                <p class="description">{{ todayTask.task.description }}</p>
-              }
-            </div>
-
-            <div class="today-task-actions">
-              <div class="task-card-buttons">
-                <button
-                  class="task-complete-button"
-                  type="button"
-                  (click)="$event.stopPropagation(); completeTask(todayTask.occurrence.id)"
-                  aria-label="Completar tarea"
-                  i18n-aria-label
-                >
-                  ✓
-                </button>
-
-                <button
-                  class="task-delete-button"
-                  type="button"
-                  (click)="$event.stopPropagation(); deleteTask(todayTask.task)"
-                  i18n
-                >
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          </article>
+          <app-task-card
+            [task]="todayTask.task"
+            [occurrence]="todayTask.occurrence"
+            (edit)="editTask($event)"
+            (complete)="completeTask($event)"
+            (delete)="deleteTask($event)"
+          />
         }
       </div>
     }
@@ -111,27 +84,46 @@
       <p class="eyebrow" i18n>Personales</p>
       <h2 i18n>Mis tareas personales</h2>
       <p i18n>Crea y organiza tareas que solo tú puedes ver.</p>
-      <button class="card-link" type="button" (click)="goToPersonalTasks()" i18n>
+      <button
+        class="card-link"
+        type="button"
+        (click)="goToPersonalTasks()"
+        i18n
+      >
         Ir a personales
       </button>
     </article>
 
     @if (hasHousehold()) {
       <article class="home-card">
-        <p class="eyebrow" i18n>Hogar</p>
-        <h2 i18n>Tareas del hogar</h2>
-        <p i18n>Consulta y organiza las tareas compartidas con tu hogar.</p>
-        <button class="card-link" type="button" i18n>Ir al hogar</button>
+        <p class="eyebrow" i18n>Grupo</p>
+        <h2 i18n>Tareas del grupo</h2>
+        <p i18n>Consulta y organiza las tareas compartidas con tu grupo.</p>
+        <button
+          class="card-link"
+          type="button"
+          (click)="goToHouseholds()"
+          i18n
+        >
+          Ir al grupo
+        </button>
       </article>
     } @else {
       <article class="home-card">
         <p class="eyebrow" i18n>Grupo</p>
         <h2 i18n>Aún no tienes un grupo</h2>
-        <p i18n>Crea uno para organizar tareas con otras personas o únete con un código de invitación.</p>
+        <p i18n>
+          Crea uno para organizar tareas con otras personas o únete con un
+          código de invitación.
+        </p>
 
         <div class="card-actions">
-          <button type="button" i18n>Crear grupo</button>
-          <button class="secondary-button" type="button" i18n>Introducir invitación</button>
+          <button type="button" (click)="goToHouseholds()" i18n>
+            Crear grupo
+          </button>
+          <button class="secondary-button" type="button" i18n>
+            Introducir invitación
+          </button>
         </div>
       </article>
     }
@@ -147,8 +139,12 @@
       <article class="home-card home-card--admin">
         <p class="eyebrow" i18n>Administración</p>
         <h2 i18n>Panel de administración</h2>
-        <p i18n>Gestiona los usuarios y la configuración general de la aplicación.</p>
-        <button class="card-link" type="button" i18n>Abrir administración</button>
+        <p i18n>
+          Gestiona los usuarios y la configuración general de la aplicación.
+        </p>
+        <button class="card-link" type="button" i18n>
+          Abrir administración
+        </button>
       </article>
     }
   </section>

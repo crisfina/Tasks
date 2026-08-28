@@ -33,6 +33,7 @@ PositiveInteger = Annotated[
 class LoginRequest(BaseModel):
     identifier: LoginIdentifier
     password: PasswordInput
+    remember_me: bool = False
 
 
 class TokenRead(BaseModel):

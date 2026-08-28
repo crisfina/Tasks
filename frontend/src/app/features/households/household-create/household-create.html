@@ -1,0 +1,77 @@
+<main class="home-page">
+  <header class="home-header">
+    <button class="home-logo" type="button" (click)="cancel()">Tasks</button>
+
+    <nav class="main-nav" aria-label="Navegación principal">
+      <button type="button" (click)="cancel()" i18n>Grupos</button>
+    </nav>
+
+    <button
+      class="menu-button"
+      type="button"
+      aria-label="Abrir menú"
+      i18n-aria-label
+    >
+      ☰
+    </button>
+  </header>
+
+  <section class="welcome-section">
+    <p class="eyebrow" i18n>Grupo</p>
+    <h1 i18n>Crea un grupo</h1>
+    <p i18n>Podrás compartir tareas y organizarte con otras personas.</p>
+  </section>
+
+  <section class="today-section" aria-labelledby="create-group-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow" i18n>Configuración</p>
+        <h2 id="create-group-title" i18n>Datos del grupo</h2>
+      </div>
+    </div>
+
+    <form class="group-form" [formGroup]="householdForm" (ngSubmit)="submit()">
+      <div class="group-form__field">
+        <label for="group-name" i18n>Nombre del grupo</label>
+        <input
+          id="group-name"
+          type="text"
+          formControlName="name"
+          maxlength="100"
+          autocomplete="off"
+          placeholder="Por ejemplo, Casa de la playa"
+          i18n-placeholder
+        />
+
+        @if (
+          householdForm.controls.name.invalid &&
+          householdForm.controls.name.touched
+        ) {
+          <p class="form-message--error" i18n>
+            Escribe un nombre para el grupo.
+          </p>
+        }
+      </div>
+
+      @if (errorMessage()) {
+        <p class="form-message--error" aria-live="polite">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      <div class="group-form__actions">
+        <button class="secondary-button" type="button" (click)="cancel()" i18n>
+          Cancelar
+        </button>
+
+        <button type="submit" [disabled]="isSubmitting()" i18n>
+          @if (isSubmitting()) {
+            Creando…
+          } @else {
+            Crear grupo
+          }
+        </button>
+      </div>
+    </form>
+  </section>
+</main>

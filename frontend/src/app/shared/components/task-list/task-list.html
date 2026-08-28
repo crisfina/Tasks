@@ -1,0 +1,15 @@
+<div class="task-list">
+  @for (item of items; track item.occurrence?.id ?? item.task.id) {
+    <app-task-card
+      [task]="item.task"
+      [occurrence]="item.occurrence"
+      [statusLabel]="item.statusLabel ?? 'Pendiente'"
+      [isEditable]="isEditable"
+      [showComplete]="showComplete"
+      [showDelete]="showDelete"
+      (edit)="edit.emit($event)"
+      (complete)="complete.emit($event)"
+      (delete)="delete.emit($event)"
+    />
+  }
+</div>

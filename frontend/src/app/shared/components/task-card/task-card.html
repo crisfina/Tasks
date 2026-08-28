@@ -1,0 +1,46 @@
+<article
+  class="task-card"
+  [class.task-card--editable]="isEditable"
+  [attr.role]="isEditable ? 'button' : null"
+  [attr.tabindex]="isEditable ? 0 : null"
+  (click)="editTask()"
+  (keydown.enter)="editTask()"
+>
+  <div class="task-card__content">
+    <h3>{{ task.title }}</h3>
+
+    @if (task.description) {
+      <p class="task-card__description">{{ task.description }}</p>
+    }
+  </div>
+
+  <div class="task-card__side">
+    <span class="task-status">{{ statusLabel }}</span>
+
+    <div class="task-card__actions">
+      @if (showComplete && occurrence !== null) {
+        <button
+          class="task-complete-button"
+          type="button"
+          (click)="completeTask($event)"
+          aria-label="Completar tarea"
+          i18n-aria-label
+        >
+          ✓
+        </button>
+      }
+
+      @if (showDelete) {
+        <button
+          class="task-delete-button"
+          type="button"
+          (click)="deleteTask($event)"
+          aria-label="Eliminar tarea"
+          i18n-aria-label
+        >
+          X
+        </button>
+      }
+    </div>
+  </div>
+</article>

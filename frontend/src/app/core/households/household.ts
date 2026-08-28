@@ -3,7 +3,11 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../api/api.config';
-import { Household } from './household.models';
+import {
+  Household,
+  HouseholdCreate,
+  HouseholdMember
+} from './household.models';
 
 @Injectable({ providedIn: 'root' })
 export class HouseholdService {
@@ -12,5 +16,20 @@ export class HouseholdService {
 
   getMyHouseholds(): Observable<Household[]> {
     return this.http.get<Household[]>(`${this.apiBaseUrl}/households`);
+  }
+
+  createHousehold(data: HouseholdCreate): Observable<Household> {
+    return this.http.post<Household>(
+      `${this.apiBaseUrl}/households`,
+      data,
+    );
+  }
+
+  getHouseholdMembers(
+    householdId: number,
+  ): Observable<HouseholdMember[]> {
+    return this.http.get<HouseholdMember[]>(
+      `${this.apiBaseUrl}/households/${householdId}/members`,
+    );
   }
 }

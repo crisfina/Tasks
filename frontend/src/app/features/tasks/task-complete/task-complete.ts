@@ -19,6 +19,7 @@ export class TaskComplete implements OnInit {
   readonly isSubmitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly occurrenceId = signal<number | null>(null);
+  readonly returnUrl = signal('/home');
 
   readonly completionForm = this.formBuilder.nonNullable.group({
     realized_minutes: [1, [Validators.required, Validators.min(1)]],
@@ -26,10 +27,12 @@ export class TaskComplete implements OnInit {
   });
 
   ngOnInit(): void {
+    this.configureReturnUrl();
+
     const occurrenceId = Number(this.route.snapshot.paramMap.get('occurrenceId'));
 
     if (!Number.isInteger(occurrenceId) || occurrenceId <= 0) {
-      this.router.navigateByUrl('/home');
+      this.router.navigateByUrl(this.returnUrl());
       return;
     }
 
@@ -57,7 +60,7 @@ export class TaskComplete implements OnInit {
       .subscribe({
         next: () => {
           this.isSubmitting.set(false);
-          this.router.navigateByUrl('/home');
+          this.router.navigateByUrl(this.returnUrl());
         },
         error: () => {
           this.isSubmitting.set(false);
@@ -69,6 +72,27 @@ export class TaskComplete implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigateByUrl('/home');
+    this.router.navigateByUrl(this.returnUrl());
+  }
+
+  private configureReturnUrl(): void {
+    const returnTo = this.route.snapshot.queryParamMap.get('returnTo');
+
+    if (returnTo === 'personales') {
+      this.returnUrl.set('/personales');
+      return;
+    }
+
+    if (returnTo !== 'grupo') {
+      return;
+    }
+
+    const householdId = Number(
+      this.route.snapshot.queryParamMap.get('householdId'),
+    );
+
+    if (Number.isInteger(householdId) && householdId > 0) {
+      this.returnUrl.set(`/hogares/${householdId}`);
+    }
   }
 }

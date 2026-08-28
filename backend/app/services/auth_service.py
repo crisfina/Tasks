@@ -43,14 +43,23 @@ def authenticate_user(
 
 def create_token_response(
     user: User,
+    data: LoginRequest,
 ) -> TokenRead:
+    expiration_minutes = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+
+    if data.remember_me:
+        expiration_minutes = (
+            settings.REMEMBER_ME_TOKEN_EXPIRE_DAYS
+            * 24
+            * 60
+        )
+
     access_token = create_access_token(
         user.id,
+        expiration_minutes,
     )
 
     return TokenRead(
         access_token=access_token,
-        expires_in=(
-            settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
-        ),
+        expires_in=expiration_minutes * 60,
     )

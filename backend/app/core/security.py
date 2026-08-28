@@ -30,9 +30,16 @@ def verify_password(
 
 def create_access_token(
     user_id: int,
+    expires_in_minutes: int | None = None,
 ) -> str:
+    expiration_minutes = (
+        settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        if expires_in_minutes is None
+        else expires_in_minutes
+    )
+
     expires_at = datetime.now(UTC) + timedelta(
-        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
+        minutes=expiration_minutes,
     )
 
     payload = {
