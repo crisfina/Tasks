@@ -85,3 +85,13 @@
     gap: 0.5rem;
   }
 }
+
+.task-card__context {
+  margin: 0.35rem 0 0;
+  color: var(--primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

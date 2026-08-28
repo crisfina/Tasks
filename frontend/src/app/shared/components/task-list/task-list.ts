@@ -1,4 +1,9 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
 
 import {
   Task,
@@ -10,6 +15,7 @@ export interface TaskListItem {
   task: Task;
   occurrence: TaskOccurrence | null;
   statusLabel?: string;
+  contextLabel?: string | null;
 }
 
 @Component({
@@ -20,11 +26,11 @@ export interface TaskListItem {
 })
 export class TaskList {
   @Input({ required: true }) items: TaskListItem[] = [];
+  @Input() isEditable = true;
+  @Input() showComplete = true;
+  @Input() showDelete = true;
 
   @Output() edit = new EventEmitter<number>();
   @Output() complete = new EventEmitter<number>();
   @Output() delete = new EventEmitter<Task>();
-  @Input() isEditable = true;
-  @Input() showComplete = true;
-  @Input() showDelete = true;
 }

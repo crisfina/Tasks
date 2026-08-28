@@ -52,6 +52,32 @@ export class HouseholdDetail implements OnInit {
   goToHouseholds(): void {
     this.router.navigateByUrl('/hogares');
   }
+  
+  completeTask(occurrenceId: number): void {
+    const householdId = this.household()?.id;
+
+    if (householdId === undefined) {
+      return;
+    }
+
+    this.router.navigate(
+      ['/task-occurrences', occurrenceId, 'complete'],
+      { queryParams: { returnTo: 'grupo', householdId } },
+    );
+  }
+
+  createTask(): void {
+    const householdId = this.household()?.id;
+
+    if (householdId === undefined) {
+      return;
+    }
+
+    this.router.navigate(
+      ['/tasks/new'],
+      { queryParams: { householdId } },
+    );
+  }
 
   private loadHousehold(householdId: number): void {
     this.isLoading.set(true);

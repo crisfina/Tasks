@@ -1,6 +1,8 @@
 <main class="home-page">
   <header class="home-header">
-    <button class="home-logo" type="button" (click)="goHome()">Tasks</button>
+    <button class="home-logo" type="button" (click)="goHome()">
+      Tasks
+    </button>
 
     <nav class="main-nav" aria-label="Navegación principal">
       <button type="button" (click)="goHome()" i18n>Inicio</button>
@@ -18,21 +20,19 @@
   </header>
 
   <section class="welcome-section">
-    <p class="eyebrow" i18n>Compartido</p>
-    <h1 i18n>Mis grupos</h1>
-    <p i18n>Crea un grupo para organizar tareas con otras personas.</p>
+    <p class="eyebrow" i18n>Compartidas</p>
+    <h1 i18n>Tareas de mis grupos</h1>
+    <p i18n>
+      Consulta en un solo lugar las tareas compartidas que tienes pendientes.
+    </p>
   </section>
 
-  <section class="today-section" aria-labelledby="group-list-title">
+  <section class="today-section" aria-labelledby="group-tasks-title">
     <div class="section-heading">
       <div>
-        <p class="eyebrow" i18n>Listado</p>
-        <h2 id="group-list-title" i18n>Grupos</h2>
+        <p class="eyebrow" i18n>Resumen</p>
+        <h2 id="group-tasks-title" i18n>Tareas disponibles</h2>
       </div>
-
-      <button class="text-link" type="button" (click)="createHousehold()" i18n>
-        Crear grupo
-      </button>
     </div>
 
     @if (errorMessage()) {
@@ -43,28 +43,72 @@
 
     @if (isLoading()) {
       <div class="empty-state">
-        <p i18n>Cargando grupos…</p>
+        <p i18n>Cargando tareas de grupos…</p>
       </div>
     } @else if (households().length === 0) {
       <div class="empty-state">
-        <h3 i18n>Aún no perteneces a ningún grupo</h3>
-        <p i18n>Crea uno para compartir tareas o únete con una invitación.</p>
-
-        <button type="button" (click)="createHousehold()" i18n>
-          Crear grupo
-        </button>
+        <h3 i18n>Aún no tienes grupos</h3>
+        <p i18n>
+          Crea un grupo o únete a uno para organizar tareas compartidas.
+        </p>
+      </div>
+    } @else if (groupTasks().length === 0) {
+      <div class="empty-state">
+        <h3 i18n>No tienes tareas compartidas disponibles</h3>
+        <p i18n>
+          Las tareas de tus grupos aparecerán aquí cuando estén disponibles.
+        </p>
       </div>
     } @else {
-      <div class="today-task-list">
-        @for (household of households(); track household.id) {
-          <article class="today-task">
-            <div>
-                <h3>{{ household.name }}</h3>
-                <p i18n>Grupo compartido</p>
-            </div>
-          </article>
-        }
-      </div>
+      <app-task-list
+        [items]="groupTaskListItems()"
+        [isEditable]="false"
+        [showDelete]="false"
+        (complete)="completeTask($event)"
+      />
     }
+  </section>
+
+  <section class="home-grid" aria-label="Mis grupos">
+    @for (household of households(); track household.id) {
+      <article
+        class="home-card"
+        role="button"
+        tabindex="0"
+        (click)="openHousehold(household.id)"
+        (keydown.enter)="openHousehold(household.id)"
+      >
+        <p class="eyebrow" i18n>Grupo</p>
+        <h2>{{ household.name }}</h2>
+        <p i18n>
+          Consulta sus miembros, sus invitaciones y la configuración del grupo.
+        </p>
+        <button
+          class="card-link"
+          type="button"
+          (click)="$event.stopPropagation(); openHousehold(household.id)"
+          i18n
+        >
+          Gestionar grupo
+        </button>
+      </article>
+    }
+
+    <article class="home-card">
+      <p class="eyebrow" i18n>Nuevo grupo</p>
+      <h2 i18n>Crea otro grupo</h2>
+      <p i18n>
+        Puedes usar los grupos para tu hogar, familia, pareja o cualquier
+        organización compartida.
+      </p>
+      <button
+        class="card-link"
+        type="button"
+        (click)="createHousehold()"
+        i18n
+      >
+        Crear grupo
+      </button>
+    </article>
   </section>
 </main>

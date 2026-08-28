@@ -65,17 +65,12 @@
         </button>
       </div>
     } @else {
-      <div class="today-task-list">
-        @for (todayTask of todayTasks(); track todayTask.occurrence.id) {
-          <app-task-card
-            [task]="todayTask.task"
-            [occurrence]="todayTask.occurrence"
-            (edit)="editTask($event)"
-            (complete)="completeTask($event)"
-            (delete)="deleteTask($event)"
-          />
-        }
-      </div>
+      <app-task-list
+        [items]="todayTaskListItems()"
+        (edit)="editTask($event)"
+        (complete)="completeTask($event)"
+        (delete)="deleteTask($event)"
+      />
     }
   </section>
 

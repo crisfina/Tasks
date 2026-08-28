@@ -5,18 +5,41 @@
 
     <form [formGroup]="loginForm" (ngSubmit)="submit()" novalidate>
       <label for="identifier" i18n>Usuario o correo electrónico</label>
-      <input id="identifier" type="text" autocomplete="username" formControlName="identifier" />
+      <input
+        id="identifier"
+        type="text"
+        autocomplete="username"
+        formControlName="identifier"
+      />
 
-      @if (loginForm.controls.identifier.touched && loginForm.controls.identifier.hasError('required')) {
-        <p class="field-error" i18n>Introduce tu usuario o correo electrónico.</p>
+      @if (
+        loginForm.controls.identifier.touched &&
+        loginForm.controls.identifier.hasError('required')
+      ) {
+        <p class="field-error" i18n>
+          Introduce tu usuario o correo electrónico.
+        </p>
       }
 
       <label for="password" i18n>Contraseña</label>
-      <input id="password" type="password" autocomplete="current-password" formControlName="password" />
+      <input
+        id="password"
+        type="password"
+        autocomplete="current-password"
+        formControlName="password"
+      />
 
-      @if (loginForm.controls.password.touched && loginForm.controls.password.hasError('required')) {
+      @if (
+        loginForm.controls.password.touched &&
+        loginForm.controls.password.hasError('required')
+      ) {
         <p class="field-error" i18n>Introduce tu contraseña.</p>
       }
+
+      <label class="remember-me">
+        <input type="checkbox" formControlName="remember_me" />
+        <span i18n>Mantener sesión iniciada</span>
+      </label>
 
       @if (errorMessage()) {
         <p class="form-message form-message--error" aria-live="polite">

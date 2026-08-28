@@ -78,10 +78,19 @@ export class TaskComplete implements OnInit {
   private configureReturnUrl(): void {
     const returnTo = this.route.snapshot.queryParamMap.get('returnTo');
 
-    if (returnTo === 'personales') {
-      this.returnUrl.set('/personales');
-      return;
+  if (returnTo === 'personales') {
+    this.returnUrl.set('/personales');
+  } else if (returnTo === 'hogares') {
+    this.returnUrl.set('/hogares');
+  } else if (returnTo === 'grupo') {
+    const householdId = Number(
+      this.route.snapshot.queryParamMap.get('householdId'),
+    );
+
+    if (Number.isInteger(householdId) && householdId > 0) {
+      this.returnUrl.set(`/hogares/${householdId}`);
     }
+  }
 
     if (returnTo !== 'grupo') {
       return;

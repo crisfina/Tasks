@@ -1,6 +1,7 @@
 export interface LoginRequest {
   identifier: string;
   password: string;
+  remember_me: boolean;
 }
 
 export interface TokenRead {

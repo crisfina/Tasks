@@ -1,10 +1,18 @@
 <main class="task-create-page">
   <section class="task-create-card" aria-labelledby="page-title">
-    <p class="eyebrow" i18n>Tarea personal</p>
-    <h1 id="page-title" i18n>Nueva tarea</h1>
-    <p class="form-introduction" i18n>
-      Crea una tarea para ti y elige cuándo quieres tenerla terminada.
-    </p>
+    @if (householdId() === null) {
+      <p class="eyebrow" i18n>Tarea personal</p>
+      <h1 id="page-title" i18n>Nueva tarea</h1>
+      <p class="form-introduction" i18n>
+        Crea una tarea para ti y elige cuándo quieres tenerla terminada.
+      </p>
+    } @else {
+      <p class="eyebrow" i18n>Tarea compartida</p>
+      <h1 id="page-title" i18n>Nueva tarea de grupo</h1>
+      <p class="form-introduction" i18n>
+        Crea una tarea para que las personas del grupo puedan completarla.
+      </p>
+    }
 
     <form [formGroup]="taskForm" (ngSubmit)="submit()">
       <label for="title" i18n>Título</label>
@@ -31,16 +39,18 @@
         rows="4"
       ></textarea>
 
-      <label for="category" i18n>Categoría</label>
-      <select id="category" formControlName="category_id">
-        <option [ngValue]="0" i18n>Sin categoría</option>
+      @if (householdId() === null) {
+        <label for="category" i18n>Categoría</label>
+        <select id="category" formControlName="category_id">
+          <option [ngValue]="0" i18n>Sin categoría</option>
 
-        @for (category of categories(); track category.id) {
-          <option [ngValue]="category.id">
-            {{ category.name }}
-          </option>
-        }
-      </select>
+          @for (category of categories(); track category.id) {
+            <option [ngValue]="category.id">
+              {{ category.name }}
+            </option>
+          }
+        </select>
+      }
 
       <div class="form-grid">
         <div>

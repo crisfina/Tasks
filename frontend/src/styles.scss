@@ -642,3 +642,21 @@ select:focus {
   flex: 0 0 auto;
   align-self: center;
 }
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  justify-content:center;
+  gap: 1rem;
+  margin: 0.25rem 0 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.remember-me input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}

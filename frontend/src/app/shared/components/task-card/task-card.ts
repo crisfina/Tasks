@@ -15,6 +15,7 @@ export class TaskCard {
   @Input({ required: true }) task!: Task;
   @Input() occurrence: TaskOccurrence | null = null;
   @Input() statusLabel = 'Pendiente';
+  @Input() contextLabel: string | null = null;
   @Input() isEditable = true;
   @Input() showComplete = true;
   @Input() showDelete = true;

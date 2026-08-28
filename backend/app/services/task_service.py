@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import delete, select
+from sqlalchemy import and_, delete, or_, select
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import (
@@ -169,12 +169,46 @@ def get_tasks(
     include_inactive: bool = False,
     include_hidden: bool = False,
 ) -> list[Task]:
+    visible_occurrence = (
+        select(TaskOccurrence.id)
+        .where(
+            TaskOccurrence.task_id == Task.id,
+            TaskOccurrence.completed_at.is_(None),
+            or_(
+                TaskOccurrence.assigned_user_id.is_(None),
+                TaskOccurrence.assigned_user_id == actor_id,
+            ),
+        )
+        .exists()
+    )
+
     statement = select(Task)
 
     if household_id is None:
+        household_ids = (
+            select(HouseholdUser.household_id)
+            .join(
+                Household,
+                Household.id == HouseholdUser.household_id,
+            )
+            .where(
+                HouseholdUser.user_id == actor_id,
+                Household.is_active.is_(True),
+            )
+        )
+
         statement = statement.where(
-            Task.household_id.is_(None),
-            Task.created_by == actor_id,
+            or_(
+                and_(
+                    Task.household_id.is_(None),
+                    Task.created_by == actor_id,
+                ),
+                and_(
+                    Task.household_id.in_(household_ids),
+                    Task.visibility != Visibility.PRIVATE,
+                    visible_occurrence,
+                ),
+            ),
         )
     else:
         household_statement = select(Household.id).where(
@@ -201,6 +235,7 @@ def get_tasks(
         statement = statement.where(
             Task.household_id == household_id,
             Task.visibility != Visibility.PRIVATE,
+            visible_occurrence,
         )
 
     if not include_inactive:

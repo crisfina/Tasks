@@ -22,6 +22,7 @@ export class Login {
   readonly loginForm = this.formBuilder.nonNullable.group({
     identifier: ['', [Validators.required]],
     password: ['', [Validators.required]],
+    remember_me: [false],
   });
 
   submit(): void {
@@ -42,7 +43,9 @@ export class Login {
       },
       error: () => {
         this.isSubmitting.set(false);
-        this.errorMessage.set('No se ha podido iniciar sesión. Revisa tus datos.');
+        this.errorMessage.set(
+          'No se ha podido iniciar sesión. Revisa tus datos.',
+        );
       },
     });
   }
