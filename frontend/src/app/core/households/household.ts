@@ -6,7 +6,10 @@ import { API_BASE_URL } from '../api/api.config';
 import {
   Household,
   HouseholdCreate,
-  HouseholdMember
+  HouseholdInvitationAccept,
+  HouseholdInvitationCreated,
+  HouseholdInvitationCreate,
+  HouseholdMember,
 } from './household.models';
 
 @Injectable({ providedIn: 'root' })
@@ -15,7 +18,9 @@ export class HouseholdService {
   private readonly apiBaseUrl = inject(API_BASE_URL);
 
   getMyHouseholds(): Observable<Household[]> {
-    return this.http.get<Household[]>(`${this.apiBaseUrl}/households`);
+    return this.http.get<Household[]>(
+      `${this.apiBaseUrl}/households`,
+    );
   }
 
   createHousehold(data: HouseholdCreate): Observable<Household> {
@@ -30,6 +35,25 @@ export class HouseholdService {
   ): Observable<HouseholdMember[]> {
     return this.http.get<HouseholdMember[]>(
       `${this.apiBaseUrl}/households/${householdId}/members`,
+    );
+  }
+
+  createHouseholdInvitation(
+    householdId: number,
+    data: HouseholdInvitationCreate,
+  ): Observable<HouseholdInvitationCreated> {
+    return this.http.post<HouseholdInvitationCreated>(
+      `${this.apiBaseUrl}/households/${householdId}/invitations`,
+      data,
+    );
+  }
+
+  acceptHouseholdInvitation(
+    data: HouseholdInvitationAccept,
+  ): Observable<HouseholdMember> {
+    return this.http.post<HouseholdMember>(
+      `${this.apiBaseUrl}/households/invitations/accept`,
+      data,
     );
   }
 }

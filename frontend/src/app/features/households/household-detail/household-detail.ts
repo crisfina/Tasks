@@ -1,6 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, map, of, switchMap } from 'rxjs';
+import {
+  forkJoin,
+  map,
+  of,
+  switchMap,
+} from 'rxjs';
 
 import { HouseholdService } from '../../../core/households/household';
 import {
@@ -34,11 +39,16 @@ export class HouseholdDetail implements OnInit {
   readonly taskItems = signal<TaskListItem[]>([]);
   readonly isLoading = signal(true);
   readonly isLoadingTasks = signal(true);
+  readonly isCreatingInvitation = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly taskErrorMessage = signal<string | null>(null);
+  readonly invitationErrorMessage = signal<string | null>(null);
+  readonly invitationCode = signal<string | null>(null);
 
   ngOnInit(): void {
-    const householdId = Number(this.route.snapshot.paramMap.get('householdId'));
+    const householdId = Number(
+      this.route.snapshot.paramMap.get('householdId'),
+    );
 
     if (!Number.isInteger(householdId) || householdId <= 0) {
       this.router.navigateByUrl('/hogares');
@@ -52,7 +62,19 @@ export class HouseholdDetail implements OnInit {
   goToHouseholds(): void {
     this.router.navigateByUrl('/hogares');
   }
-  
+
+  goToOrganization(): void {
+    const householdId = this.household()?.id;
+
+    if (householdId === undefined) {
+      return;
+    }
+
+    this.router.navigateByUrl(
+      `/hogares/${householdId}/organizacion`,
+    );
+  }
+
   completeTask(occurrenceId: number): void {
     const householdId = this.household()?.id;
 
@@ -77,6 +99,36 @@ export class HouseholdDetail implements OnInit {
       ['/tasks/new'],
       { queryParams: { householdId } },
     );
+  }
+
+  createInvitation(): void {
+    const householdId = this.household()?.id;
+
+    if (householdId === undefined) {
+      return;
+    }
+
+    this.isCreatingInvitation.set(true);
+    this.invitationErrorMessage.set(null);
+    this.invitationCode.set(null);
+
+    this.householdService
+      .createHouseholdInvitation(
+        householdId,
+        { role: 'member' },
+      )
+      .subscribe({
+        next: (invitation) => {
+          this.invitationCode.set(invitation.code);
+          this.isCreatingInvitation.set(false);
+        },
+        error: () => {
+          this.invitationErrorMessage.set(
+            'No se ha podido crear la invitación. Inténtalo de nuevo.',
+          );
+          this.isCreatingInvitation.set(false);
+        },
+      });
   }
 
   private loadHousehold(householdId: number): void {
@@ -117,7 +169,9 @@ export class HouseholdDetail implements OnInit {
       .pipe(
         map((tasks) =>
           tasks.filter(
-            (task) => task.is_active && task.household_id === householdId,
+            (task) =>
+              task.is_active &&
+              task.household_id === householdId,
           ),
         ),
         switchMap((tasks) => {

@@ -39,14 +39,25 @@
         rows="4"
       ></textarea>
 
-      @if (householdId() === null) {
-        <label for="category" i18n>Categoría</label>
-        <select id="category" formControlName="category_id">
-          <option [ngValue]="0" i18n>Sin categoría</option>
+      <label for="category" i18n>Categoría</label>
+      <select id="category" formControlName="category_id">
+        <option [ngValue]="0" i18n>Sin categoría</option>
 
-          @for (category of categories(); track category.id) {
-            <option [ngValue]="category.id">
-              {{ category.name }}
+        @for (category of categories(); track category.id) {
+          <option [ngValue]="category.id">
+            {{ category.name }}
+          </option>
+        }
+      </select>
+
+      @if (householdId() !== null) {
+        <label for="area" i18n>Área</label>
+        <select id="area" formControlName="room_id">
+          <option [ngValue]="0" i18n>Sin área</option>
+
+          @for (area of areas(); track area.id) {
+            <option [ngValue]="area.id">
+              {{ area.name }}
             </option>
           }
         </select>

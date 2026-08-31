@@ -34,6 +34,7 @@ app.add_middleware(
         "http://127.0.0.1:4200",
         "https://crisfina.github.io",
         "https://tasks-q493amxvd-cristina-s-projects9.vercel.app",
+        "https://tasks-psi-seven.vercel.app/",
     ],
     allow_credentials=True,
     allow_methods=["*"],

@@ -115,17 +115,51 @@
         <p class="eyebrow" i18n>Invitaciones</p>
         <h2 i18n>Incorpora a otras personas</h2>
         <p i18n>
-          Aquí podrás crear invitaciones para que otras personas se unan al
-          grupo.
+          Genera un código para que otra persona se una a este grupo.
         </p>
+
+        <button
+          class="card-link"
+          type="button"
+          (click)="createInvitation()"
+          [disabled]="isCreatingInvitation()"
+          i18n
+        >
+          @if (isCreatingInvitation()) {
+            Creando…
+          } @else {
+            Crear invitación
+          }
+        </button>
+
+        @if (invitationErrorMessage()) {
+          <p class="form-message--error" aria-live="polite">
+            {{ invitationErrorMessage() }}
+          </p>
+        }
+
+        @if (invitationCode()) {
+          <p class="invitation-code-label" i18n>
+            Comparte este código. Solo se muestra ahora:
+          </p>
+          <code class="invitation-code">{{ invitationCode() }}</code>
+        }
       </article>
 
       <article class="home-card">
         <p class="eyebrow" i18n>Organización</p>
         <h2 i18n>Configuración del grupo</h2>
         <p i18n>
-          Más adelante podrás gestionar sus categorías, habitaciones y ajustes.
+          Gestiona las áreas y categorías compartidas de este grupo.
         </p>
+        <button
+          class="card-link"
+          type="button"
+          (click)="goToOrganization()"
+          i18n
+        >
+          Organizar grupo
+        </button>
       </article>
     </section>
   }

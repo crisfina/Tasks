@@ -1,0 +1,22 @@
+:host {
+  display: block;
+}
+
+.home-grid {
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, 420px), 1fr)
+  );
+}
+
+.category-form {
+  grid-template-columns: 1fr;
+}
+
+.category-submit-button {
+  width: 100%;
+}
+
+.today-task-list {
+  grid-template-columns: 1fr;
+}

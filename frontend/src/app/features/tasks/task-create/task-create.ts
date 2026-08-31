@@ -13,9 +13,12 @@ import {
   ActivatedRoute,
   Router,
 } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
 import { CategoryService } from '../../../core/categories/category';
 import { Category } from '../../../core/categories/category.models';
+import { RoomService } from '../../../core/rooms/room';
+import { Room } from '../../../core/rooms/room.models';
 import {
   Difficulty,
   Priority,
@@ -33,6 +36,7 @@ import { TaskService } from '../../../core/tasks/task.service';
 export class TaskCreate implements OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly roomService = inject(RoomService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
@@ -40,6 +44,7 @@ export class TaskCreate implements OnInit {
   readonly isSubmitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly categories = signal<Category[]>([]);
+  readonly areas = signal<Room[]>([]);
   readonly householdId = signal<number | null>(null);
   readonly returnUrl = signal('/home');
 
@@ -47,6 +52,7 @@ export class TaskCreate implements OnInit {
     title: ['', [Validators.required, Validators.maxLength(200)]],
     description: [''],
     category_id: [0],
+    room_id: [0],
     estimated_minutes: [null as number | null, [Validators.min(1)]],
     due_date: [this.getTodayForInput(), [Validators.required]],
     difficulty: ['medium' as Difficulty],
@@ -64,10 +70,11 @@ export class TaskCreate implements OnInit {
     if (Number.isInteger(householdId) && householdId > 0) {
       this.householdId.set(householdId);
       this.returnUrl.set(`/hogares/${householdId}`);
+      this.loadHouseholdOptions(householdId);
       return;
     }
 
-    this.loadCategories();
+    this.loadPersonalCategories();
   }
 
   submit(): void {
@@ -87,10 +94,11 @@ export class TaskCreate implements OnInit {
       .createTask({
         title: formValue.title,
         description: formValue.description || null,
-        category_id:
+        category_id: formValue.category_id || null,
+        room_id:
           householdId === null
-            ? formValue.category_id || null
-            : null,
+            ? null
+            : formValue.room_id || null,
         estimated_minutes: formValue.estimated_minutes,
         difficulty: formValue.difficulty,
         priority: formValue.priority,
@@ -120,20 +128,50 @@ export class TaskCreate implements OnInit {
     this.router.navigateByUrl(this.returnUrl());
   }
 
-  private loadCategories(): void {
+  private loadPersonalCategories(): void {
     this.categoryService.getPersonalCategories().subscribe({
       next: (categories) =>
-        this.categories.set(
-          categories
-            .filter((category) => category.is_active)
-            .sort(
-              (first, second) =>
-                (first.display_order ?? 0) -
-                (second.display_order ?? 0),
-            ),
-        ),
+        this.categories.set(this.getActiveCategories(categories)),
       error: () => this.categories.set([]),
     });
+  }
+
+  private loadHouseholdOptions(householdId: number): void {
+    forkJoin({
+      areas: this.roomService.getHouseholdRooms(householdId),
+      categories: this.categoryService.getHouseholdCategories(householdId),
+    }).subscribe({
+      next: ({ areas, categories }) => {
+        this.areas.set(this.getActiveAreas(areas));
+        this.categories.set(this.getActiveCategories(categories));
+      },
+      error: () => {
+        this.areas.set([]);
+        this.categories.set([]);
+      },
+    });
+  }
+
+  private getActiveCategories(
+    categories: Category[],
+  ): Category[] {
+    return categories
+      .filter((category) => category.is_active)
+      .sort(
+        (first, second) =>
+          (first.display_order ?? 0) -
+          (second.display_order ?? 0),
+      );
+  }
+
+  private getActiveAreas(areas: Room[]): Room[] {
+    return areas
+      .filter((area) => area.is_active)
+      .sort(
+        (first, second) =>
+          (first.display_order ?? 0) -
+          (second.display_order ?? 0),
+      );
   }
 
   private getTodayForInput(): string {

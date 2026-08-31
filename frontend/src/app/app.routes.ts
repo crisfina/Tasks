@@ -13,6 +13,7 @@ import { TaskComplete } from './features/tasks/task-complete/task-complete';
 import { TaskCreate } from './features/tasks/task-create/task-create';
 import { TaskEdit } from './features/tasks/task-edit/task-edit';
 import { HouseholdDetail } from './features/households/household-detail/household-detail';
+import { HouseholdOrganization } from './features/households/household-organization/household-organization';
 
 export const routes: Routes = [
   { path: '', component: Login },
@@ -40,6 +41,11 @@ export const routes: Routes = [
   {
     path: 'hogares/:householdId',
     component: HouseholdDetail,
+    canActivate: [authGuard],
+  },
+  {
+  path: 'hogares/:householdId/organizacion',
+    component: HouseholdOrganization,
     canActivate: [authGuard],
   },
   { path: '**', redirectTo: '' },

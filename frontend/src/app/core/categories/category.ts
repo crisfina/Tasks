@@ -15,11 +15,16 @@ export class CategoryService {
   private readonly apiBaseUrl = inject(API_BASE_URL);
 
   getPersonalCategories(): Observable<Category[]> {
-    return this.http.get<Category[]>(`${this.apiBaseUrl}/categories`);
+    return this.http.get<Category[]>(
+      `${this.apiBaseUrl}/categories`,
+    );
   }
 
   createPersonalCategory(data: CategoryCreate): Observable<Category> {
-    return this.http.post<Category>(`${this.apiBaseUrl}/categories`, data);
+    return this.http.post<Category>(
+      `${this.apiBaseUrl}/categories`,
+      data,
+    );
   }
 
   updatePersonalCategory(
@@ -35,6 +40,44 @@ export class CategoryService {
   deletePersonalCategory(categoryId: number): Observable<void> {
     return this.http.delete<void>(
       `${this.apiBaseUrl}/categories/${categoryId}`,
+    );
+  }
+
+  getHouseholdCategories(
+    householdId: number,
+  ): Observable<Category[]> {
+    return this.http.get<Category[]>(
+      `${this.apiBaseUrl}/households/${householdId}/categories`,
+    );
+  }
+
+  createHouseholdCategory(
+    householdId: number,
+    data: CategoryCreate,
+  ): Observable<Category> {
+    return this.http.post<Category>(
+      `${this.apiBaseUrl}/households/${householdId}/categories`,
+      data,
+    );
+  }
+
+  updateHouseholdCategory(
+    householdId: number,
+    categoryId: number,
+    data: CategoryUpdate,
+  ): Observable<Category> {
+    return this.http.patch<Category>(
+      `${this.apiBaseUrl}/households/${householdId}/categories/${categoryId}`,
+      data,
+    );
+  }
+
+  deleteHouseholdCategory(
+    householdId: number,
+    categoryId: number,
+  ): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiBaseUrl}/households/${householdId}/categories/${categoryId}`,
     );
   }
 }
