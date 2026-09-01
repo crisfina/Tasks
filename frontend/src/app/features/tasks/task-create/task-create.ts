@@ -27,6 +27,8 @@ import {
 } from '../../../core/tasks/task.models';
 import { TaskService } from '../../../core/tasks/task.service';
 
+type AvailabilityMode = 'always' | 'before_due';
+
 @Component({
   imports: [ReactiveFormsModule],
   selector: 'app-task-create',
@@ -55,6 +57,8 @@ export class TaskCreate implements OnInit {
     room_id: [0],
     estimated_minutes: [null as number | null, [Validators.min(1)]],
     due_date: [this.getTodayForInput(), [Validators.required]],
+    availability_mode: ['always' as AvailabilityMode],
+    days_before_due: [1, [Validators.min(0)]],
     difficulty: ['medium' as Difficulty],
     priority: ['medium' as Priority],
     urgency: ['medium' as Urgency],
@@ -86,6 +90,7 @@ export class TaskCreate implements OnInit {
     const formValue = this.taskForm.getRawValue();
     const repeatType = formValue.repeat_type || null;
     const householdId = this.householdId();
+    const availability = this.getAvailability(formValue.due_date);
 
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
@@ -106,7 +111,9 @@ export class TaskCreate implements OnInit {
         visibility: householdId === null ? 'private' : 'shared',
         household_id: householdId,
         assignment_mode: 'none',
-        days_until_due: this.getDaysUntilDue(formValue.due_date),
+        available_from: availability.availableFrom.toISOString(),
+        days_before_due: availability.daysBeforeDue,
+        days_until_due: availability.daysUntilDue,
         repeat_type: repeatType,
         repeat_interval: repeatType ? formValue.repeat_interval : null,
       })
@@ -174,6 +181,41 @@ export class TaskCreate implements OnInit {
       );
   }
 
+  private getAvailability(dueDate: string): {
+    availableFrom: Date;
+    daysBeforeDue: number | null;
+    daysUntilDue: number;
+  } {
+    const formValue = this.taskForm.getRawValue();
+    const dueDateValue = this.getDateFromInput(dueDate);
+
+    if (formValue.availability_mode === 'always') {
+      const availableFrom = new Date();
+
+      return {
+        availableFrom,
+        daysBeforeDue: null,
+        daysUntilDue: this.getCalendarDaysBetween(
+          availableFrom,
+          dueDateValue,
+        ),
+      };
+    }
+
+    const daysBeforeDue = formValue.days_before_due;
+    const availableFrom = new Date(dueDateValue);
+
+    availableFrom.setDate(
+      availableFrom.getDate() - daysBeforeDue,
+    );
+
+    return {
+      availableFrom,
+      daysBeforeDue,
+      daysUntilDue: daysBeforeDue,
+    };
+  }
+
   private getTodayForInput(): string {
     const today = new Date();
     const year = today.getFullYear();
@@ -183,21 +225,28 @@ export class TaskCreate implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
-  private getDaysUntilDue(dueDate: string): number {
-    const [year, month, day] = dueDate.split('-').map(Number);
-    const selectedDate = new Date(year, month - 1, day);
+  private getDateFromInput(value: string): Date {
+    const [year, month, day] = value.split('-').map(Number);
 
-    selectedDate.setHours(0, 0, 0, 0);
+    return new Date(year, month - 1, day);
+  }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  private getCalendarDaysBetween(
+    firstDate: Date,
+    secondDate: Date,
+  ): number {
+    const firstDay = new Date(firstDate);
+    const secondDay = new Date(secondDate);
+
+    firstDay.setHours(0, 0, 0, 0);
+    secondDay.setHours(0, 0, 0, 0);
 
     const millisecondsPerDay = 24 * 60 * 60 * 1000;
 
     return Math.max(
       0,
       Math.round(
-        (selectedDate.getTime() - today.getTime()) /
+        (secondDay.getTime() - firstDay.getTime()) /
           millisecondsPerDay,
       ),
     );

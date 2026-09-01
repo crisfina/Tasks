@@ -80,6 +80,41 @@
         </div>
       </div>
 
+      <fieldset class="availability-fieldset">
+        <legend i18n>Cuándo mostrar la tarea</legend>
+
+        <label class="availability-option">
+          <input
+            type="radio"
+            formControlName="availability_mode"
+            value="always"
+          />
+          <span i18n>Mostrar siempre</span>
+        </label>
+
+        <label class="availability-option">
+          <input
+            type="radio"
+            formControlName="availability_mode"
+            value="before_due"
+          />
+          <span i18n>Mostrar días antes del vencimiento</span>
+        </label>
+
+        @if (taskForm.controls.availability_mode.value === 'before_due') {
+          <div class="availability-days">
+            <label for="days-before-due" i18n>Mostrar</label>
+            <input
+              id="days-before-due"
+              type="number"
+              formControlName="days_before_due"
+              min="0"
+            />
+            <span i18n>días antes del vencimiento</span>
+          </div>
+        }
+      </fieldset>
+
       <div class="form-grid">
         <div>
           <label for="difficulty" i18n>Dificultad</label>

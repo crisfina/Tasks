@@ -660,3 +660,56 @@ select:focus {
   accent-color: var(--primary);
   cursor: pointer;
 }
+
+.availability-fieldset {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+}
+
+.availability-fieldset legend {
+  padding: 0 0.35rem;
+  font-weight: 700;
+}
+
+.availability-option {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+  cursor: pointer;
+  font-weight: 400;
+}
+
+.availability-option input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--primary);
+}
+
+.availability-days {
+  display: grid;
+  grid-template-columns: auto 90px 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.availability-days label {
+  margin: 0;
+}
+
+.availability-days input {
+  min-width: 0;
+}
+
+@media (max-width: 600px) {
+  .availability-days {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+}

@@ -25,9 +25,6 @@ from app.services.point_transaction_service import (
 )
 
 
-DEFAULT_DAYS_UNTIL_DUE = 2
-
-
 def get_task_occurrence_by_id(
     db: Session,
     occurrence_id: int,
@@ -319,29 +316,25 @@ def _create_next_occurrence(
     task: Task,
     completed_at: datetime,
     current_user_id: int | None,
-) -> TaskOccurrence | None:
+) -> None:
     if (
         not task.is_active
         or task.repeat_type is None
     ):
-        return None
+        return
 
     repeat_interval = task.repeat_interval or 1
 
-    available_from = _calculate_next_available_from(
+    due_date = _calculate_next_available_from(
         completed_at,
         task.repeat_type,
         repeat_interval,
     )
 
-    days_until_due = (
-        task.days_until_due
-        if task.days_until_due is not None
-        else DEFAULT_DAYS_UNTIL_DUE
-    )
-
-    due_date = available_from + timedelta(
-        days=days_until_due,
+    available_from = (
+        due_date - timedelta(days=task.days_before_due)
+        if task.days_before_due is not None
+        else completed_at
     )
 
     next_occurrence = TaskOccurrence(
@@ -355,8 +348,6 @@ def _create_next_occurrence(
     )
 
     db.add(next_occurrence)
-
-    return next_occurrence
 
 
 def complete_task_occurrence(
