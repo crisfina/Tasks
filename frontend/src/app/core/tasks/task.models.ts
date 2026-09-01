@@ -78,6 +78,7 @@ export interface TaskCreate {
   repeat_interval?: number | null;
   days_before_due?: number | null;
   days_until_due?: number | null;
+  available_from?: string | null;
   visibility: Visibility;
   household_id?: number | null;
   assignment_mode?: AssignmentMode | null;
@@ -125,6 +126,13 @@ export interface TaskOccurrenceCreate {
   assigned_user_id?: number | null;
   available_from: string;
   due_date: string;
+  notes?: string | null;
+}
+
+export interface TaskOccurrenceUpdate {
+  assigned_user_id?: number | null;
+  available_from?: string;
+  due_date?: string;
   notes?: string | null;
 }
 

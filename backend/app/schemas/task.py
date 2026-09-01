@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Annotated, Self
 
 from pydantic import (
+    AwareDatetime,
     BaseModel,
     ConfigDict,
     Field,
@@ -90,6 +91,7 @@ class TaskBase(BaseModel):
 
 
 class TaskCreate(TaskBase):
+    available_from: AwareDatetime | None = None
     assigned_user_ids: list[PositiveId] = Field(
         default_factory=list,
     )

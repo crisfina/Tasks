@@ -470,8 +470,13 @@ def _create_first_occurrence(
     db: Session,
     task: Task,
     assigned_user_ids: list[int],
+    available_from: datetime | None,
 ) -> None:
-    now = datetime.now(UTC)
+    occurrence_available_from = (
+        available_from
+        if available_from is not None
+        else datetime.now(UTC)
+    )
 
     days_until_due = (
         task.days_until_due
@@ -488,10 +493,9 @@ def _create_first_occurrence(
     occurrence = TaskOccurrence(
         task_id=task.id,
         assigned_user_id=assigned_user_id,
-        available_from=now,
-        due_date=now + timedelta(
-            days=days_until_due,
-        ),
+        available_from=occurrence_available_from,
+        due_date=occurrence_available_from
+        + timedelta(days=days_until_due),
     )
 
     db.add(occurrence)
@@ -503,9 +507,13 @@ def create_task(
     created_by: int,
 ) -> Task:
     task_data = data.model_dump(
-        exclude={"assigned_user_ids"},
+        exclude={
+            "assigned_user_ids",
+            "available_from",
+        },
     )
     assigned_user_ids = data.assigned_user_ids
+    available_from = data.available_from
 
     household_id = task_data.get("household_id")
     category_id = task_data.get("category_id")
@@ -571,6 +579,7 @@ def create_task(
         db,
         task,
         assigned_user_ids,
+        available_from,
     )
 
     db.commit()
