@@ -9,6 +9,7 @@ import {
   TaskOccurrence,
   TaskOccurrenceComplete,
   TaskOccurrenceCreate,
+  TaskOccurrenceUpdate,
   TaskUpdate,
 } from './task.models';
 
@@ -22,14 +23,22 @@ export class TaskService {
   }
 
   getTask(taskId: number): Observable<Task> {
-    return this.http.get<Task>(`${this.apiBaseUrl}/tasks/${taskId}`);
+    return this.http.get<Task>(
+      `${this.apiBaseUrl}/tasks/${taskId}`,
+    );
   }
 
   createTask(data: TaskCreate): Observable<Task> {
-    return this.http.post<Task>(`${this.apiBaseUrl}/tasks`, data);
+    return this.http.post<Task>(
+      `${this.apiBaseUrl}/tasks`,
+      data,
+    );
   }
 
-  updateTask(taskId: number, data: TaskUpdate): Observable<Task> {
+  updateTask(
+    taskId: number,
+    data: TaskUpdate,
+  ): Observable<Task> {
     return this.http.patch<Task>(
       `${this.apiBaseUrl}/tasks/${taskId}`,
       data,
@@ -37,7 +46,9 @@ export class TaskService {
   }
 
   deleteTask(taskId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiBaseUrl}/tasks/${taskId}`);
+    return this.http.delete<void>(
+      `${this.apiBaseUrl}/tasks/${taskId}`,
+    );
   }
 
   getOccurrences(taskId: number): Observable<TaskOccurrence[]> {
@@ -52,6 +63,24 @@ export class TaskService {
   ): Observable<TaskOccurrence> {
     return this.http.post<TaskOccurrence>(
       `${this.apiBaseUrl}/tasks/${taskId}/occurrences`,
+      data,
+    );
+  }
+
+  getOccurrence(
+    occurrenceId: number,
+  ): Observable<TaskOccurrence> {
+    return this.http.get<TaskOccurrence>(
+      `${this.apiBaseUrl}/task-occurrences/${occurrenceId}`,
+    );
+  }
+
+  updateOccurrence(
+    occurrenceId: number,
+    data: TaskOccurrenceUpdate,
+  ): Observable<TaskOccurrence> {
+    return this.http.patch<TaskOccurrence>(
+      `${this.apiBaseUrl}/task-occurrences/${occurrenceId}`,
       data,
     );
   }

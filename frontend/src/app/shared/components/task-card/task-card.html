@@ -1,6 +1,7 @@
 <article
   class="task-card"
   [class.task-card--editable]="isEditable"
+  [class.task-card--details-open]="isDetailsOpen"
   [attr.role]="isEditable ? 'button' : null"
   [attr.tabindex]="isEditable ? 0 : null"
   (click)="editTask()"
@@ -22,6 +23,19 @@
     <span class="task-status">{{ statusLabel }}</span>
 
     <div class="task-card__actions">
+      @if (occurrence !== null) {
+        <button
+          class="task-details-button"
+          type="button"
+          (click)="toggleDetails($event)"
+          [attr.aria-expanded]="isDetailsOpen"
+          aria-label="Mostrar detalles"
+          i18n-aria-label
+        >
+          i
+        </button>
+      }
+
       @if (showComplete && occurrence !== null) {
         <button
           class="task-complete-button"
@@ -47,4 +61,33 @@
       }
     </div>
   </div>
+
+  @if (occurrence !== null) {
+    <div class="task-card__details">
+      <dl>
+
+        <div>
+          <dt i18n>Fecha límite</dt>
+          <dd>{{ formatDate(occurrence.due_date) }}</dd>
+        </div>
+      </dl>
+
+      @if (occurrence.notes) {
+        <p class="task-card__occurrence-notes">
+          {{ occurrence.notes }}
+        </p>
+      }
+
+      @if (showOccurrenceEdit) {
+        <button
+          class="task-occurrence-edit-button"
+          type="button"
+          (click)="openOccurrenceEditor($event)"
+          i18n
+        >
+          Editar esta ocurrencia
+        </button>
+      }
+    </div>
+  }
 </article>

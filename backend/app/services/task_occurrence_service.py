@@ -18,9 +18,11 @@ from app.models.user import User
 from app.schemas.task_occurrence import (
     TaskOccurrenceComplete,
     TaskOccurrenceCreate,
+    TaskOccurrenceFail,
     TaskOccurrenceUpdate,
 )
 from app.services.point_transaction_service import (
+    create_task_occurrence_penalty_transactions,
     create_task_occurrence_transaction,
 )
 
@@ -65,6 +67,7 @@ def get_task_occurrences(
     if not include_completed:
         statement = statement.where(
             TaskOccurrence.completed_at.is_(None),
+            TaskOccurrence.failed_at.is_(None),
         )
 
     statement = statement.order_by(
@@ -152,6 +155,11 @@ def update_task_occurrence(
     if occurrence.completed_at is not None:
         raise BusinessRuleError(
             ErrorCode.TASK_OCCURRENCE_ALREADY_COMPLETED,
+        )
+
+    if occurrence.failed_at is not None:
+        raise BusinessRuleError(
+            ErrorCode.TASK_OCCURRENCE_ALREADY_FAILED,
         )
 
     changes = data.model_dump(
@@ -350,6 +358,96 @@ def _create_next_occurrence(
     db.add(next_occurrence)
 
 
+def _create_replacement_occurrence(
+    db: Session,
+    occurrence: TaskOccurrence,
+    now: datetime,
+) -> TaskOccurrence:
+    replacement_due_date = (
+        occurrence.due_date
+        if occurrence.due_date >= now
+        else now
+    )
+
+    replacement = TaskOccurrence(
+        task_id=occurrence.task_id,
+        assigned_user_id=None,
+        available_from=now,
+        due_date=replacement_due_date,
+    )
+
+    db.add(replacement)
+
+    return replacement
+
+
+def fail_task_occurrence(
+    db: Session,
+    occurrence: TaskOccurrence,
+    failed_by_user_id: int,
+    data: TaskOccurrenceFail,
+) -> TaskOccurrence:
+    if occurrence.completed_at is not None:
+        raise BusinessRuleError(
+            ErrorCode.TASK_OCCURRENCE_ALREADY_COMPLETED,
+        )
+
+    if occurrence.failed_at is not None:
+        raise BusinessRuleError(
+            ErrorCode.TASK_OCCURRENCE_ALREADY_FAILED,
+        )
+
+    _validate_assigned_user(
+        db,
+        occurrence.task,
+        failed_by_user_id,
+    )
+
+    task = occurrence.task
+
+    if task.household_id is None:
+        penalized_user_ids = (
+            [failed_by_user_id]
+            if data.penalize
+            else []
+        )
+    else:
+        penalized_user_ids = data.penalized_user_ids
+
+        if not penalized_user_ids:
+            raise BusinessRuleError(
+                ErrorCode.TASK_OCCURRENCE_PENALIZED_USERS_REQUIRED,
+            )
+
+    now = datetime.now(UTC)
+
+    occurrence.failed_at = now
+    occurrence.failed_by_user_id = failed_by_user_id
+
+    _create_replacement_occurrence(
+        db,
+        occurrence,
+        now,
+    )
+
+    try:
+        if task.awards_points:
+            create_task_occurrence_penalty_transactions(
+                db,
+                occurrence,
+                penalized_user_ids,
+            )
+
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+
+    db.refresh(occurrence)
+
+    return occurrence
+
+
 def complete_task_occurrence(
     db: Session,
     occurrence: TaskOccurrence,
@@ -359,6 +457,11 @@ def complete_task_occurrence(
     if occurrence.completed_at is not None:
         raise BusinessRuleError(
             ErrorCode.TASK_OCCURRENCE_ALREADY_COMPLETED,
+        )
+
+    if occurrence.failed_at is not None:
+        raise BusinessRuleError(
+            ErrorCode.TASK_OCCURRENCE_ALREADY_FAILED,
         )
 
     now = datetime.now(UTC)

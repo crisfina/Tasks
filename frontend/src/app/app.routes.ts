@@ -14,6 +14,7 @@ import { TaskCreate } from './features/tasks/task-create/task-create';
 import { TaskEdit } from './features/tasks/task-edit/task-edit';
 import { HouseholdDetail } from './features/households/household-detail/household-detail';
 import { HouseholdOrganization } from './features/households/household-organization/household-organization';
+import { TaskOccurrenceEdit } from './features/tasks/task-occurrence-edit/task-occurrence-edit';
 
 export const routes: Routes = [
   { path: '', component: Login },
@@ -46,6 +47,11 @@ export const routes: Routes = [
   {
   path: 'hogares/:householdId/organizacion',
     component: HouseholdOrganization,
+    canActivate: [authGuard],
+  },
+  {
+  path: 'task-occurrences/:occurrenceId/edit',
+    component: TaskOccurrenceEdit,
     canActivate: [authGuard],
   },
   { path: '**', redirectTo: '' },

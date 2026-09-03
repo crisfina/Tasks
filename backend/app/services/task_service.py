@@ -174,6 +174,7 @@ def get_tasks(
         .where(
             TaskOccurrence.task_id == Task.id,
             TaskOccurrence.completed_at.is_(None),
+            TaskOccurrence.failed_at.is_(None),
             or_(
                 TaskOccurrence.assigned_user_id.is_(None),
                 TaskOccurrence.assigned_user_id == actor_id,

@@ -88,6 +88,19 @@ export class HouseholdDetail implements OnInit {
     );
   }
 
+  editOccurrence(occurrenceId: number): void {
+    const householdId = this.household()?.id;
+
+    if (householdId === undefined) {
+      return;
+    }
+
+    this.router.navigate(
+      ['/task-occurrences', occurrenceId, 'edit'],
+      { queryParams: { returnTo: 'grupo', householdId } },
+    );
+  }
+
   createTask(): void {
     const householdId = this.household()?.id;
 

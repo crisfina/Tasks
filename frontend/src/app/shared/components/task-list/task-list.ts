@@ -29,8 +29,10 @@ export class TaskList {
   @Input() isEditable = true;
   @Input() showComplete = true;
   @Input() showDelete = true;
+  @Input() showOccurrenceEdit = true;
 
   @Output() edit = new EventEmitter<number>();
+  @Output() editOccurrence = new EventEmitter<number>();
   @Output() complete = new EventEmitter<number>();
   @Output() delete = new EventEmitter<Task>();
 }

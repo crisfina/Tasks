@@ -92,6 +92,13 @@ export class PersonalTaskList implements OnInit {
     );
   }
 
+  editOccurrence(occurrenceId: number): void {
+    this.router.navigate(
+      ['/task-occurrences', occurrenceId, 'edit'],
+      { queryParams: { returnTo: 'personales' } },
+    );
+  }
+
   deleteTask(task: Task): void {
     const shouldDelete = window.confirm(
       `¿Quieres desactivar la tarea «${task.title}»?`,

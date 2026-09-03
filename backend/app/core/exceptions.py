@@ -79,6 +79,12 @@ class ErrorCode(str, Enum):
     TASK_OCCURRENCE_ALREADY_COMPLETED = (
         "task_occurrence_already_completed"
     )
+    TASK_OCCURRENCE_ALREADY_FAILED = (
+        "task_occurrence_already_failed"
+    )
+    TASK_OCCURRENCE_PENALIZED_USERS_REQUIRED = (
+        "task_occurrence_penalized_users_required"
+    )
     TASK_OCCURRENCE_NOT_AVAILABLE = (
         "task_occurrence_not_available"
     )

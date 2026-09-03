@@ -409,3 +409,81 @@ def create_task_occurrence_transaction(
     db.refresh(transaction)
 
     return transaction
+
+
+def create_task_occurrence_penalty_transactions(
+    db: Session,
+    occurrence: TaskOccurrence,
+    user_ids: list[int],
+) -> list[PointTransaction]:
+    if occurrence.failed_at is None:
+        raise BusinessRuleError(
+            ErrorCode.POINT_TRANSACTION_OCCURRENCE_INVALID,
+        )
+
+    if not user_ids:
+        return []
+
+    task = occurrence.task
+
+    if task.household_id is None:
+        scope = PointScope.PERSONAL
+        household_id = None
+    else:
+        scope = PointScope.HOUSEHOLD
+        household_id = task.household_id
+
+    existing_user_ids = set(
+        db.scalars(
+            select(PointTransaction.user_id).where(
+                PointTransaction.task_occurrence_id
+                == occurrence.id,
+            ),
+        ).all(),
+    )
+
+    if existing_user_ids.intersection(user_ids):
+        raise BusinessRuleError(
+            ErrorCode.POINT_TRANSACTION_SOURCE_INVALID,
+        )
+
+    points = -2 * calculate_task_points(
+        occurrence,
+    )
+
+    transactions: list[PointTransaction] = []
+
+    for user_id in user_ids:
+        _validate_user(
+            db,
+            user_id,
+        )
+
+        if household_id is not None:
+            _validate_household_member(
+                db,
+                household_id,
+                user_id,
+            )
+
+        transaction = PointTransaction(
+            user_id=user_id,
+            household_id=household_id,
+            scope=scope,
+            points=points,
+            reason=f"No realizada: {task.title}",
+            event_id=None,
+            task_occurrence_id=occurrence.id,
+        )
+
+        db.add(transaction)
+
+        _update_point_statistics(
+            db,
+            user_id,
+            points,
+        )
+
+        transactions.append(transaction)
+
+    return transactions

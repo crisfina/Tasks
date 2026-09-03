@@ -91,6 +91,13 @@ export class Home implements OnInit {
     );
   }
 
+  editOccurrence(occurrenceId: number): void {
+    this.router.navigate(
+      ['/task-occurrences', occurrenceId, 'edit'],
+      { queryParams: { returnTo: 'home' } },
+    );
+  }
+
   deleteTask(task: Task): void {
     const shouldDelete = window.confirm(
       `¿Quieres desactivar la tarea «${task.title}»?`,

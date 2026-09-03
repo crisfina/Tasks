@@ -68,6 +68,7 @@
       <app-task-list
         [items]="todayTaskListItems()"
         (edit)="editTask($event)"
+        (editOccurrence)="editOccurrence($event)"
         (complete)="completeTask($event)"
         (delete)="deleteTask($event)"
       />

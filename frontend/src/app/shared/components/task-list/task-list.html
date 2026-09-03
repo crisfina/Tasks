@@ -8,7 +8,9 @@
       [isEditable]="isEditable"
       [showComplete]="showComplete"
       [showDelete]="showDelete"
+      [showOccurrenceEdit]="showOccurrenceEdit"
       (edit)="edit.emit($event)"
+      (editOccurrence)="editOccurrence.emit($event)"
       (complete)="complete.emit($event)"
       (delete)="delete.emit($event)"
     />

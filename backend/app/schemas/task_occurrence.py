@@ -62,6 +62,8 @@ class TaskOccurrenceRead(TaskOccurrenceBase):
     task_id: PositiveId
     completed_at: AwareDatetime | None
     completed_by_user_id: PositiveId | None
+    failed_at: AwareDatetime | None
+    failed_by_user_id: PositiveId | None
     realized_minutes: PositiveInteger | None
     awarded_points: NonNegativeInteger | None
     created_at: AwareDatetime
@@ -94,3 +96,22 @@ class TaskOccurrenceUpdate(BaseModel):
 class TaskOccurrenceComplete(BaseModel):
     realized_minutes: PositiveInteger
     notes: OccurrenceNotes | None = None
+
+
+class TaskOccurrenceFail(BaseModel):
+    penalize: bool = False
+    penalized_user_ids: list[PositiveId] = Field(
+        default_factory=list,
+    )
+
+    @model_validator(mode="after")
+    def validate_penalized_user_ids(self) -> Self:
+        if len(self.penalized_user_ids) != len(
+            set(self.penalized_user_ids),
+        ):
+            raise PydanticCustomError(
+                "penalized_users_duplicate",
+                "penalized_users_duplicate",
+            )
+
+        return self

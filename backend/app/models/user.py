@@ -7,7 +7,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 from app.enums.user_role import UserRole
 
-
 if TYPE_CHECKING:
     from app.models.category import Category
     from app.models.event import Event
@@ -87,6 +86,11 @@ class User(Base):
     completed_task_occurrences: Mapped[list["TaskOccurrence"]] = relationship(
         foreign_keys="TaskOccurrence.completed_by_user_id",
         back_populates="completed_by_user",
+    )
+
+    failed_task_occurrences: Mapped[list["TaskOccurrence"]] = relationship(
+        foreign_keys="TaskOccurrence.failed_by_user_id",
+        back_populates="failed_by_user",
     )
 
     statistics: Mapped["UserStatistics"] = relationship(

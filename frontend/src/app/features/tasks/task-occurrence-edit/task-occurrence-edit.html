@@ -1,0 +1,70 @@
+<main class="task-create-page">
+  <section class="task-create-card" aria-labelledby="page-title">
+    <p class="eyebrow" i18n>Planificación</p>
+    <h1 id="page-title" i18n>Editar ocurrencia</h1>
+    <p class="form-introduction" i18n>
+      Cambia cuándo estará disponible esta tarea y su fecha límite.
+    </p>
+
+    @if (isLoading()) {
+      <div class="empty-state">
+        <p i18n>Cargando ocurrencia…</p>
+      </div>
+    } @else {
+      <form [formGroup]="occurrenceForm" (ngSubmit)="submit()">
+        <div class="form-grid">
+          <div>
+            <label for="available-from" i18n>Disponible desde</label>
+            <input
+              id="available-from"
+              type="date"
+              formControlName="available_from"
+            />
+          </div>
+
+          <div>
+            <label for="due-date" i18n>Fecha límite</label>
+            <input
+              id="due-date"
+              type="date"
+              formControlName="due_date"
+            />
+          </div>
+        </div>
+
+        <label for="notes" i18n>Notas de esta ocurrencia</label>
+        <textarea
+          id="notes"
+          formControlName="notes"
+          maxlength="2000"
+          rows="4"
+        ></textarea>
+
+        @if (errorMessage()) {
+          <p class="form-message--error" aria-live="polite">
+            {{ errorMessage() }}
+          </p>
+        }
+
+        <div class="form-actions">
+          <button
+            class="secondary-button"
+            type="button"
+            (click)="cancel()"
+            i18n
+          >
+            Cancelar
+          </button>
+
+          <button type="submit" [disabled]="isSubmitting()" i18n>
+            @if (isSubmitting()) {
+              Guardando…
+            } @else {
+              Guardar cambios
+            }
+          </button>
+        </div>
+      </form>
+    }
+  </section>
+</main>

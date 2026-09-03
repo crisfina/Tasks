@@ -1,4 +1,9 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
 
 import {
   Task,
@@ -19,14 +24,38 @@ export class TaskCard {
   @Input() isEditable = true;
   @Input() showComplete = true;
   @Input() showDelete = true;
+  @Input() showOccurrenceEdit = true;
 
   @Output() edit = new EventEmitter<number>();
+  @Output() editOccurrence = new EventEmitter<number>();
   @Output() complete = new EventEmitter<number>();
   @Output() delete = new EventEmitter<Task>();
+
+  isDetailsOpen = false;
+
+  formatDate(value: string): string {
+  return new Intl.DateTimeFormat(
+      'es-ES',
+      { dateStyle: 'medium' },
+    ).format(new Date(value));
+  }
 
   editTask(): void {
     if (this.isEditable) {
       this.edit.emit(this.task.id);
+    }
+  }
+
+  toggleDetails(event: MouseEvent): void {
+    event.stopPropagation();
+    this.isDetailsOpen = !this.isDetailsOpen;
+  }
+
+  openOccurrenceEditor(event: MouseEvent): void {
+    event.stopPropagation();
+
+    if (this.occurrence !== null) {
+      this.editOccurrence.emit(this.occurrence.id);
     }
   }
 

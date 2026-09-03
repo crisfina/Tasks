@@ -41,6 +41,14 @@ class TaskOccurrence(Base):
         ForeignKey("users.id")
     )
 
+    failed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True)
+    )
+
+    failed_by_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id")
+    )
+
     realized_minutes: Mapped[int | None] = mapped_column(
         Integer
     )
@@ -76,6 +84,11 @@ class TaskOccurrence(Base):
     completed_by_user: Mapped["User | None"] = relationship(
         foreign_keys=[completed_by_user_id],
         back_populates="completed_task_occurrences",
+    )
+
+    failed_by_user: Mapped["User | None"] = relationship(
+        foreign_keys=[failed_by_user_id],
+        back_populates="failed_task_occurrences",
     )
 
     point_transactions: Mapped[list["PointTransaction"]] = relationship(

@@ -21,6 +21,7 @@ from app.models.user import User
 from app.schemas.task_occurrence import (
     TaskOccurrenceComplete,
     TaskOccurrenceCreate,
+    TaskOccurrenceFail,
     TaskOccurrenceRead,
     TaskOccurrenceUpdate,
 )
@@ -30,6 +31,7 @@ from app.services.household_service import (
 from app.services.task_occurrence_service import (
     complete_task_occurrence,
     create_task_occurrence,
+    fail_task_occurrence,
     get_task_occurrence_or_raise,
     get_task_occurrences,
     update_task_occurrence,
@@ -244,6 +246,44 @@ def complete_occurrence(
     )
 
     return complete_task_occurrence(
+        db,
+        occurrence,
+        current_user.id,
+        data,
+    )
+
+
+@router.post(
+    "/task-occurrences/{occurrence_id}/fail",
+    response_model=TaskOccurrenceRead,
+)
+def fail_occurrence(
+    occurrence_id: Annotated[
+        int,
+        Path(gt=0),
+    ],
+    data: TaskOccurrenceFail,
+    db: Annotated[
+        Session,
+        Depends(get_db),
+    ],
+    current_user: Annotated[
+        User,
+        Depends(get_current_user),
+    ],
+) -> TaskOccurrence:
+    occurrence = get_task_occurrence_or_raise(
+        db,
+        occurrence_id,
+    )
+
+    get_task_for_user_or_raise(
+        db,
+        occurrence.task_id,
+        current_user.id,
+    )
+
+    return fail_task_occurrence(
         db,
         occurrence,
         current_user.id,
