@@ -1,14 +1,18 @@
 import { HttpClient } from '@angular/common/http';
+
 import { Injectable, inject } from '@angular/core';
+
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../api/api.config';
+
 import {
   Task,
   TaskCreate,
   TaskOccurrence,
   TaskOccurrenceComplete,
   TaskOccurrenceCreate,
+  TaskOccurrenceFail,
   TaskOccurrenceUpdate,
   TaskUpdate,
 } from './task.models';
@@ -16,6 +20,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class TaskService {
   private readonly http = inject(HttpClient);
+
   private readonly apiBaseUrl = inject(API_BASE_URL);
 
   getTasks(): Observable<Task[]> {
@@ -91,6 +96,16 @@ export class TaskService {
   ): Observable<TaskOccurrence> {
     return this.http.post<TaskOccurrence>(
       `${this.apiBaseUrl}/task-occurrences/${occurrenceId}/complete`,
+      data,
+    );
+  }
+
+  failOccurrence(
+    occurrenceId: number,
+    data: TaskOccurrenceFail,
+  ): Observable<TaskOccurrence> {
+    return this.http.post<TaskOccurrence>(
+      `${this.apiBaseUrl}/task-occurrences/${occurrenceId}/fail`,
       data,
     );
   }

@@ -140,3 +140,25 @@ export interface TaskOccurrenceComplete {
   realized_minutes: number;
   notes?: string | null;
 }
+
+export interface TaskOccurrence {
+  id: number;
+  task_id: number;
+  assigned_user_id: number | null;
+  available_from: string;
+  due_date: string;
+  notes: string | null;
+  completed_at: string | null;
+  completed_by_user_id: number | null;
+  failed_at: string | null;
+  failed_by_user_id: number | null;
+  realized_minutes: number | null;
+  awarded_points: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TaskOccurrenceFail {
+  penalize: boolean;
+  penalized_user_ids?: number[];
+}
