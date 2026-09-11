@@ -195,6 +195,34 @@ def _update_point_statistics(
     return statistics
 
 
+def register_task_occurrence_failures(
+    db: Session,
+    occurrence: TaskOccurrence,
+    user_ids: list[int],
+) -> None:
+    task = occurrence.task
+
+    for user_id in user_ids:
+        _validate_user(
+            db,
+            user_id,
+        )
+
+        if task.household_id is not None:
+            _validate_household_member(
+                db,
+                task.household_id,
+                user_id,
+            )
+
+        statistics = _get_or_create_statistics(
+            db,
+            user_id,
+        )
+
+        statistics.total_failed_tasks += 1
+
+
 def _calculate_event_points(
     event: Event,
 ) -> int:
@@ -389,6 +417,7 @@ def create_task_occurrence_transaction(
     )
 
     statistics.total_completed_tasks += 1
+
     statistics.total_minutes_worked += (
         occurrence.realized_minutes or 0
     )
@@ -400,6 +429,7 @@ def create_task_occurrence_transaction(
         )
 
     statistics.current_streak += 1
+
     statistics.best_streak = max(
         statistics.best_streak,
         statistics.current_streak,

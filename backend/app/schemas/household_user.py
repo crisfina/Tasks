@@ -1,7 +1,12 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import (
+    AliasPath,
+    BaseModel,
+    ConfigDict,
+    Field,
+)
 
 from app.enums.household_role import HouseholdRole
 
@@ -20,6 +25,12 @@ class HouseholdUserCreate(BaseModel):
 class HouseholdUserRead(BaseModel):
     household_id: PositiveId
     user_id: PositiveId
+    username: str = Field(
+        validation_alias=AliasPath("user", "username"),
+    )
+    color: str = Field(
+        validation_alias=AliasPath("user", "color"),
+    )
     role: HouseholdRole
     joined_at: datetime
 

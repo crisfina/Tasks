@@ -24,6 +24,7 @@ from app.schemas.task_occurrence import (
 from app.services.point_transaction_service import (
     create_task_occurrence_penalty_transactions,
     create_task_occurrence_transaction,
+    register_task_occurrence_failures,
 )
 
 
@@ -411,6 +412,8 @@ def fail_task_occurrence(
             if data.penalize
             else []
         )
+
+        statistics_user_ids = [failed_by_user_id]
     else:
         penalized_user_ids = data.penalized_user_ids
 
@@ -418,6 +421,8 @@ def fail_task_occurrence(
             raise BusinessRuleError(
                 ErrorCode.TASK_OCCURRENCE_PENALIZED_USERS_REQUIRED,
             )
+
+        statistics_user_ids = penalized_user_ids
 
     now = datetime.now(UTC)
 
@@ -431,6 +436,12 @@ def fail_task_occurrence(
     )
 
     try:
+        register_task_occurrence_failures(
+            db,
+            occurrence,
+            statistics_user_ids,
+        )
+
         if task.awards_points:
             create_task_occurrence_penalty_transactions(
                 db,
