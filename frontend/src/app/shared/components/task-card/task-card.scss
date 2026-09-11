@@ -47,24 +47,19 @@
 .task-card__description {
   margin: 0.5rem 0 0;
   color: var(--muted-text);
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.task-card--details-open .task-card__description {
-  white-space: normal;
-  overflow: visible;
+  white-space: nowrap;
 }
 
 .task-card__context {
   margin: 0.35rem 0 0;
   color: var(--primary);
+  overflow: hidden;
   font-size: 0.8125rem;
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .task-card__side {
@@ -90,7 +85,7 @@
 
 .task-card .task-details-button,
 .task-card .task-complete-button,
-.task-card .task-delete-button {
+.task-card .task-fail-button {
   display: grid;
   width: 32px;
   height: 32px;
@@ -112,9 +107,11 @@
   color: var(--text);
 }
 
-.task-card .task-delete-button {
+.task-card .task-fail-button {
+  border-color: #b42318;
   background: var(--surface);
-  color: var(--text);
+  color: #b42318;
+  font-weight: 800;
 }
 
 .task-card__details {
@@ -137,6 +134,12 @@
   margin-top: 0;
   opacity: 1;
   pointer-events: auto;
+}
+
+.task-card--details-open .task-card__content .task-card__description {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .task-card__details dl {
@@ -185,10 +188,6 @@
 }
 
 @media (hover: hover) {
-  .task-card .task-details-button {
-    display: none;
-  }
-
   .task-card--editable:hover .task-card__details,
   .task-card:focus-within .task-card__details {
     max-height: 18rem;
@@ -197,10 +196,17 @@
     pointer-events: auto;
   }
 
-  .task-card--editable:hover .task-card__description,
-  .task-card:focus-within .task-card__description {
-    white-space: normal;
+  .task-card--editable:hover .task-card__content .task-card__description,
+  .task-card:focus-within .task-card__content .task-card__description {
     overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
+}
+
+@media (hover: hover) and (min-width: 601px) {
+  .task-card .task-details-button {
+    display: none;
   }
 }
 

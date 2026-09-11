@@ -84,6 +84,13 @@ export class Home implements OnInit {
     );
   }
 
+  failTask(occurrenceId: number): void {
+    this.router.navigate(
+      ['/task-occurrences', occurrenceId, 'fail'],
+      { queryParams: { returnTo: 'home' } },
+    );
+}
+
   editTask(taskId: number): void {
     this.router.navigate(
       ['/tasks', taskId, 'edit'],

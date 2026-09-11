@@ -78,6 +78,20 @@ export class HouseholdList implements OnInit {
     );
   }
 
+  editOccurrence(occurrenceId: number): void {
+    this.router.navigate(
+      ['/task-occurrences', occurrenceId, 'edit'],
+      { queryParams: { returnTo: 'hogares' } },
+    );
+  }
+
+  failTask(occurrenceId: number): void {
+    this.router.navigate(
+      ['/task-occurrences', occurrenceId, 'fail'],
+      { queryParams: { returnTo: 'hogares' } },
+    );
+  }
+
   private loadDashboard(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);

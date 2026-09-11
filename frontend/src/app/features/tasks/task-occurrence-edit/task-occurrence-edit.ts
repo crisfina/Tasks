@@ -4,11 +4,13 @@ import {
   inject,
   signal,
 } from '@angular/core';
+
 import {
   FormBuilder,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+
 import {
   ActivatedRoute,
   Router,
@@ -24,14 +26,21 @@ import { TaskService } from '../../../core/tasks/task.service';
 })
 export class TaskOccurrenceEdit implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
+
   private readonly route = inject(ActivatedRoute);
+
   private readonly router = inject(Router);
+
   private readonly taskService = inject(TaskService);
 
   readonly isLoading = signal(true);
+
   readonly isSubmitting = signal(false);
+
   readonly errorMessage = signal<string | null>(null);
+
   readonly occurrenceId = signal<number | null>(null);
+
   readonly returnUrl = signal('/home');
 
   readonly occurrenceForm = this.formBuilder.nonNullable.group({
@@ -67,9 +76,11 @@ export class TaskOccurrenceEdit implements OnInit {
     }
 
     const formValue = this.occurrenceForm.getRawValue();
+
     const availableFrom = this.getStartOfDay(
       formValue.available_from,
     );
+
     const dueDate = this.getEndOfDay(formValue.due_date);
 
     if (dueDate < availableFrom) {
@@ -109,6 +120,7 @@ export class TaskOccurrenceEdit implements OnInit {
   private setReturnUrl(): void {
     const returnTo =
       this.route.snapshot.queryParamMap.get('returnTo');
+
     const householdId = Number(
       this.route.snapshot.queryParamMap.get('householdId'),
     );
@@ -119,6 +131,11 @@ export class TaskOccurrenceEdit implements OnInit {
       householdId > 0
     ) {
       this.returnUrl.set(`/hogares/${householdId}`);
+      return;
+    }
+
+    if (returnTo === 'hogares') {
+      this.returnUrl.set('/hogares');
       return;
     }
 
@@ -142,12 +159,14 @@ export class TaskOccurrenceEdit implements OnInit {
           ),
           notes: occurrence.notes ?? '',
         });
+
         this.isLoading.set(false);
       },
       error: () => {
         this.errorMessage.set(
           'No se ha podido cargar la ocurrencia.',
         );
+
         this.isLoading.set(false);
       },
     });
@@ -155,8 +174,14 @@ export class TaskOccurrenceEdit implements OnInit {
 
   private getDateForInput(value: string): string {
     const date = new Date(value);
+
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+
+    const month = String(date.getMonth() + 1).padStart(
+      2,
+      '0',
+    );
+
     const day = String(date.getDate()).padStart(2, '0');
 
     return `${year}-${month}-${day}`;
@@ -171,6 +196,14 @@ export class TaskOccurrenceEdit implements OnInit {
   private getEndOfDay(value: string): Date {
     const [year, month, day] = value.split('-').map(Number);
 
-    return new Date(year, month - 1, day, 23, 59, 59, 999);
+    return new Date(
+      year,
+      month - 1,
+      day,
+      23,
+      59,
+      59,
+      999,
+    );
   }
 }

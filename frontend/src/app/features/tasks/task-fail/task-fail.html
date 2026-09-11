@@ -1,0 +1,101 @@
+<main class="task-create-page">
+  <section class="task-create-card" aria-labelledby="page-title">
+    @if (isLoading()) {
+      <div class="empty-state">
+        <p i18n>Cargando tarea…</p>
+      </div>
+    } @else if (task(); as currentTask) {
+      <p class="eyebrow" i18n>Tarea no realizada</p>
+      <h1 id="page-title" i18n>Marcar como no realizada</h1>
+
+      <p class="form-introduction">
+        <span i18n>No se ha realizado la tarea:</span>
+        <strong> {{ currentTask.title }}</strong>
+      </p>
+
+      @if (isGroupTask()) {
+        <p class="form-introduction" i18n>
+          La tarea quedará disponible de nuevo hoy para que cualquier persona
+          del grupo pueda realizarla.
+        </p>
+
+        <fieldset class="availability-fieldset">
+          <legend i18n>Personas penalizadas</legend>
+
+          <p class="form-introduction" i18n>
+            La penalización restará el doble de los puntos que habría otorgado
+            la tarea.
+          </p>
+
+          @for (member of members(); track member.user_id) {
+            <label class="availability-option">
+              <input
+                type="checkbox"
+                [checked]="selectedUserIds().includes(member.user_id)"
+                (change)="toggleUser(member.user_id)"
+              />
+
+              <span i18n>Usuario {{ member.user_id }}</span>
+            </label>
+          }
+        </fieldset>
+      } @else {
+        <p class="form-introduction" i18n>
+          La tarea quedará disponible de nuevo hoy para que puedas realizarla
+          más tarde.
+        </p>
+
+        <label class="availability-option">
+          <input
+            type="checkbox"
+            [checked]="penalize()"
+            (change)="penalize.set(!penalize())"
+          />
+
+          <span i18n>Aplicar penalización</span>
+        </label>
+
+        @if (penalize()) {
+          <p class="form-introduction" i18n>
+            Se restará el doble de los puntos que habría otorgado la tarea.
+          </p>
+        }
+      }
+
+      @if (errorMessage()) {
+        <p class="form-message--error" aria-live="polite">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      <div class="form-actions">
+        <button
+          class="secondary-button"
+          type="button"
+          (click)="cancel()"
+          [disabled]="isSubmitting()"
+          i18n
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          (click)="submit()"
+          [disabled]="isSubmitting()"
+          i18n
+        >
+          @if (isSubmitting()) {
+            Guardando…
+          } @else {
+            Confirmar como no realizada
+          }
+        </button>
+      </div>
+    } @else {
+      <p class="form-message--error" aria-live="polite">
+        {{ errorMessage() }}
+      </p>
+    }
+  </section>
+</main>

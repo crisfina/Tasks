@@ -63,8 +63,9 @@
       <app-task-list
         [items]="groupTaskListItems()"
         [isEditable]="false"
-        [showDelete]="false"
+        (editOccurrence)="editOccurrence($event)"
         (complete)="completeTask($event)"
+        (fail)="failTask($event)"
       />
     }
   </section>

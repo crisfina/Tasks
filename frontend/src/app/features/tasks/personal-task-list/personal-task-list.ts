@@ -85,6 +85,13 @@ export class PersonalTaskList implements OnInit {
     );
   }
 
+  failTask(occurrenceId: number): void {
+    this.router.navigate(
+      ['/task-occurrences', occurrenceId, 'fail'],
+      { queryParams: { returnTo: 'personales' } },
+    );
+  }
+
   editTask(taskId: number): void {
     this.router.navigate(
       ['/tasks', taskId, 'edit'],

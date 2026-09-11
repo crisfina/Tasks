@@ -9,6 +9,7 @@ import {
   Task,
   TaskOccurrence,
 } from '../../../core/tasks/task.models';
+
 import { TaskCard } from '../task-card/task-card';
 
 export interface TaskListItem {
@@ -26,13 +27,20 @@ export interface TaskListItem {
 })
 export class TaskList {
   @Input({ required: true }) items: TaskListItem[] = [];
+
   @Input() isEditable = true;
+
   @Input() showComplete = true;
-  @Input() showDelete = true;
+
+  @Input() showFailure = true;
+
   @Input() showOccurrenceEdit = true;
 
   @Output() edit = new EventEmitter<number>();
+
   @Output() editOccurrence = new EventEmitter<number>();
+
   @Output() complete = new EventEmitter<number>();
-  @Output() delete = new EventEmitter<Task>();
+
+  @Output() fail = new EventEmitter<number>();
 }

@@ -28,7 +28,6 @@
           class="task-details-button"
           type="button"
           (click)="toggleDetails($event)"
-          [attr.aria-expanded]="isDetailsOpen"
           aria-label="Mostrar detalles"
           i18n-aria-label
         >
@@ -48,15 +47,15 @@
         </button>
       }
 
-      @if (showDelete) {
+      @if (showFailure && occurrence !== null) {
         <button
-          class="task-delete-button"
+          class="task-fail-button"
           type="button"
-          (click)="deleteTask($event)"
-          aria-label="Eliminar tarea"
+          (click)="failTask($event)"
+          aria-label="Marcar como no realizada"
           i18n-aria-label
         >
-          X
+          !
         </button>
       }
     </div>
@@ -65,11 +64,20 @@
   @if (occurrence !== null) {
     <div class="task-card__details">
       <dl>
-
         <div>
           <dt i18n>Fecha límite</dt>
           <dd>{{ formatDate(occurrence.due_date) }}</dd>
         </div>
+
+        @if (task.estimated_minutes !== null) {
+          <div>
+            <dt i18n>Tiempo estimado</dt>
+            <dd>
+              <span>{{ task.estimated_minutes }}</span>
+              <span i18n> min</span>
+            </dd>
+          </div>
+        }
       </dl>
 
       @if (occurrence.notes) {

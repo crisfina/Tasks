@@ -7,12 +7,12 @@
       [contextLabel]="item.contextLabel ?? null"
       [isEditable]="isEditable"
       [showComplete]="showComplete"
-      [showDelete]="showDelete"
+      [showFailure]="showFailure"
       [showOccurrenceEdit]="showOccurrenceEdit"
       (edit)="edit.emit($event)"
       (editOccurrence)="editOccurrence.emit($event)"
       (complete)="complete.emit($event)"
-      (delete)="delete.emit($event)"
+      (fail)="fail.emit($event)"
     />
   }
 </div>

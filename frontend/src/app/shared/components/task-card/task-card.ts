@@ -18,23 +18,33 @@ import {
 })
 export class TaskCard {
   @Input({ required: true }) task!: Task;
+
   @Input() occurrence: TaskOccurrence | null = null;
+
   @Input() statusLabel = 'Pendiente';
+
   @Input() contextLabel: string | null = null;
+
   @Input() isEditable = true;
+
   @Input() showComplete = true;
-  @Input() showDelete = true;
+
+  @Input() showFailure = true;
+
   @Input() showOccurrenceEdit = true;
 
   @Output() edit = new EventEmitter<number>();
+
   @Output() editOccurrence = new EventEmitter<number>();
+
   @Output() complete = new EventEmitter<number>();
-  @Output() delete = new EventEmitter<Task>();
+
+  @Output() fail = new EventEmitter<number>();
 
   isDetailsOpen = false;
 
   formatDate(value: string): string {
-  return new Intl.DateTimeFormat(
+    return new Intl.DateTimeFormat(
       'es-ES',
       { dateStyle: 'medium' },
     ).format(new Date(value));
@@ -67,8 +77,11 @@ export class TaskCard {
     }
   }
 
-  deleteTask(event: MouseEvent): void {
+  failTask(event: MouseEvent): void {
     event.stopPropagation();
-    this.delete.emit(this.task);
+
+    if (this.occurrence !== null) {
+      this.fail.emit(this.occurrence.id);
+    }
   }
 }

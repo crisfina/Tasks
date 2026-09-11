@@ -81,9 +81,23 @@ export class HouseholdDetail implements OnInit {
     if (householdId === undefined) {
       return;
     }
+    
 
     this.router.navigate(
       ['/task-occurrences', occurrenceId, 'complete'],
+      { queryParams: { returnTo: 'grupo', householdId } },
+    );
+  }
+
+  failTask(occurrenceId: number): void {
+    const householdId = this.household()?.id;
+
+    if (householdId === undefined) {
+      return;
+    }
+
+    this.router.navigate(
+      ['/task-occurrences', occurrenceId, 'fail'],
       { queryParams: { returnTo: 'grupo', householdId } },
     );
   }

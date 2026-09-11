@@ -15,6 +15,7 @@ import { TaskEdit } from './features/tasks/task-edit/task-edit';
 import { HouseholdDetail } from './features/households/household-detail/household-detail';
 import { HouseholdOrganization } from './features/households/household-organization/household-organization';
 import { TaskOccurrenceEdit } from './features/tasks/task-occurrence-edit/task-occurrence-edit';
+import { TaskFail } from './features/tasks/task-fail/task-fail';
 
 export const routes: Routes = [
   { path: '', component: Login },
@@ -37,6 +38,11 @@ export const routes: Routes = [
   {
     path: 'task-occurrences/:occurrenceId/complete',
     component: TaskComplete,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'task-occurrences/:occurrenceId/fail',
+    component: TaskFail,
     canActivate: [authGuard],
   },
   {
