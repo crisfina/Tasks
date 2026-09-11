@@ -44,14 +44,16 @@
           <h2 id="group-tasks-title" i18n>Tareas del grupo</h2>
         </div>
 
-        <button
-          class="text-link"
-          type="button"
-          (click)="createTask()"
-          i18n
-        >
-          Añadir tarea
-        </button>
+        @if (canManageTasks()) {
+          <button
+            class="text-link"
+            type="button"
+            (click)="createTask()"
+            i18n
+          >
+            Añadir tarea
+          </button>
+        }
       </div>
 
       @if (taskErrorMessage()) {
@@ -74,7 +76,9 @@
       } @else {
         <app-task-list
           [items]="taskItems()"
-          [isEditable]="false"
+          [isEditable]="canManageTasks()"
+          [showOccurrenceEdit]="canManageTasks()"
+          (edit)="editTask($event)"
           (editOccurrence)="editOccurrence($event)"
           (complete)="completeTask($event)"
           (fail)="failTask($event)"
@@ -93,7 +97,7 @@
           <div class="group-member-list">
             @for (member of members(); track member.user_id) {
               <div class="group-member">
-                <span i18n>Usuario {{ member.user_id }}</span>
+                <span>{{ member.username }}</span>
 
                 @switch (member.role) {
                   @case ('owner') {
@@ -119,31 +123,33 @@
           Genera un código para que otra persona se una a este grupo.
         </p>
 
-        <button
-          class="card-link"
-          type="button"
-          (click)="createInvitation()"
-          [disabled]="isCreatingInvitation()"
-          i18n
-        >
-          @if (isCreatingInvitation()) {
-            Creando…
-          } @else {
-            Crear invitación
+        @if (canManageTasks()) {
+          <button
+            class="card-link"
+            type="button"
+            (click)="createInvitation()"
+            [disabled]="isCreatingInvitation()"
+            i18n
+          >
+            @if (isCreatingInvitation()) {
+              Creando…
+            } @else {
+              Crear invitación
+            }
+          </button>
+
+          @if (invitationErrorMessage()) {
+            <p class="form-message--error" aria-live="polite">
+              {{ invitationErrorMessage() }}
+            </p>
           }
-        </button>
 
-        @if (invitationErrorMessage()) {
-          <p class="form-message--error" aria-live="polite">
-            {{ invitationErrorMessage() }}
-          </p>
-        }
-
-        @if (invitationCode()) {
-          <p class="invitation-code-label" i18n>
-            Comparte este código. Solo se muestra ahora:
-          </p>
-          <code class="invitation-code">{{ invitationCode() }}</code>
+          @if (invitationCode()) {
+            <p class="invitation-code-label" i18n>
+              Comparte este código. Solo se muestra ahora:
+            </p>
+            <code class="invitation-code">{{ invitationCode() }}</code>
+          }
         }
       </article>
 
@@ -153,14 +159,17 @@
         <p i18n>
           Gestiona las áreas y categorías compartidas de este grupo.
         </p>
-        <button
-          class="card-link"
-          type="button"
-          (click)="goToOrganization()"
-          i18n
-        >
-          Organizar grupo
-        </button>
+
+        @if (canManageTasks()) {
+          <button
+            class="card-link"
+            type="button"
+            (click)="goToOrganization()"
+            i18n
+          >
+            Organizar grupo
+          </button>
+        }
       </article>
     </section>
   }

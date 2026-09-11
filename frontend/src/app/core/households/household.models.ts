@@ -15,6 +15,8 @@ export interface HouseholdCreate {
 export interface HouseholdMember {
   household_id: number;
   user_id: number;
+  username: string;
+  color: string;
   role: HouseholdRole;
   joined_at: string;
 }

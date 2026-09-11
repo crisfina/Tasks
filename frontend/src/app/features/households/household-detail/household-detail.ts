@@ -1,5 +1,13 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+
 import { ActivatedRoute, Router } from '@angular/router';
+
 import {
   forkJoin,
   map,
@@ -7,16 +15,22 @@ import {
   switchMap,
 } from 'rxjs';
 
+import { AuthService } from '../../../core/auth/auth.service';
+
 import { HouseholdService } from '../../../core/households/household';
+
 import {
   Household,
   HouseholdMember,
 } from '../../../core/households/household.models';
+
 import {
   Task,
   TaskOccurrence,
 } from '../../../core/tasks/task.models';
+
 import { TaskService } from '../../../core/tasks/task.service';
+
 import {
   TaskList,
   TaskListItem,
@@ -29,21 +43,54 @@ import {
   templateUrl: './household-detail.html',
 })
 export class HouseholdDetail implements OnInit {
+  private readonly authService = inject(AuthService);
+
   private readonly householdService = inject(HouseholdService);
+
   private readonly route = inject(ActivatedRoute);
+
   private readonly router = inject(Router);
+
   private readonly taskService = inject(TaskService);
 
   readonly household = signal<Household | null>(null);
+
   readonly members = signal<HouseholdMember[]>([]);
+
   readonly taskItems = signal<TaskListItem[]>([]);
+
+  readonly currentUserId = signal<number | null>(null);
+
   readonly isLoading = signal(true);
+
   readonly isLoadingTasks = signal(true);
+
   readonly isCreatingInvitation = signal(false);
+
   readonly errorMessage = signal<string | null>(null);
+
   readonly taskErrorMessage = signal<string | null>(null);
+
   readonly invitationErrorMessage = signal<string | null>(null);
+
   readonly invitationCode = signal<string | null>(null);
+
+  readonly canManageTasks = computed(() => {
+    const currentUserId = this.currentUserId();
+
+    if (currentUserId === null) {
+      return false;
+    }
+
+    const membership = this.members().find(
+      (member) => member.user_id === currentUserId,
+    );
+
+    return (
+      membership?.role === 'owner' ||
+      membership?.role === 'manager'
+    );
+  });
 
   ngOnInit(): void {
     const householdId = Number(
@@ -55,6 +102,7 @@ export class HouseholdDetail implements OnInit {
       return;
     }
 
+    this.loadCurrentUser();
     this.loadHousehold(householdId);
     this.loadTasks(householdId);
   }
@@ -66,7 +114,10 @@ export class HouseholdDetail implements OnInit {
   goToOrganization(): void {
     const householdId = this.household()?.id;
 
-    if (householdId === undefined) {
+    if (
+      householdId === undefined ||
+      !this.canManageTasks()
+    ) {
       return;
     }
 
@@ -81,7 +132,6 @@ export class HouseholdDetail implements OnInit {
     if (householdId === undefined) {
       return;
     }
-    
 
     this.router.navigate(
       ['/task-occurrences', occurrenceId, 'complete'],
@@ -102,10 +152,29 @@ export class HouseholdDetail implements OnInit {
     );
   }
 
+  editTask(taskId: number): void {
+    const householdId = this.household()?.id;
+
+    if (
+      householdId === undefined ||
+      !this.canManageTasks()
+    ) {
+      return;
+    }
+
+    this.router.navigate(
+      ['/tasks', taskId, 'edit'],
+      { queryParams: { returnTo: 'grupo', householdId } },
+    );
+  }
+
   editOccurrence(occurrenceId: number): void {
     const householdId = this.household()?.id;
 
-    if (householdId === undefined) {
+    if (
+      householdId === undefined ||
+      !this.canManageTasks()
+    ) {
       return;
     }
 
@@ -118,7 +187,10 @@ export class HouseholdDetail implements OnInit {
   createTask(): void {
     const householdId = this.household()?.id;
 
-    if (householdId === undefined) {
+    if (
+      householdId === undefined ||
+      !this.canManageTasks()
+    ) {
       return;
     }
 
@@ -131,7 +203,10 @@ export class HouseholdDetail implements OnInit {
   createInvitation(): void {
     const householdId = this.household()?.id;
 
-    if (householdId === undefined) {
+    if (
+      householdId === undefined ||
+      !this.canManageTasks()
+    ) {
       return;
     }
 
@@ -158,6 +233,13 @@ export class HouseholdDetail implements OnInit {
       });
   }
 
+  private loadCurrentUser(): void {
+    this.authService.getCurrentUser().subscribe({
+      next: (user) => this.currentUserId.set(user.id),
+      error: () => this.currentUserId.set(null),
+    });
+  }
+
   private loadHousehold(householdId: number): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
@@ -168,10 +250,14 @@ export class HouseholdDetail implements OnInit {
     }).subscribe({
       next: ({ households, members }) => {
         const household =
-          households.find((item) => item.id === householdId) ?? null;
+          households.find(
+            (item) => item.id === householdId,
+          ) ?? null;
 
         if (household === null) {
-          this.errorMessage.set('No se ha encontrado el grupo.');
+          this.errorMessage.set(
+            'No se ha encontrado el grupo.',
+          );
           this.isLoading.set(false);
           return;
         }
@@ -181,7 +267,9 @@ export class HouseholdDetail implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.errorMessage.set('No se ha podido cargar el grupo.');
+        this.errorMessage.set(
+          'No se ha podido cargar el grupo.',
+        );
         this.isLoading.set(false);
       },
     });
@@ -211,13 +299,17 @@ export class HouseholdDetail implements OnInit {
               this.taskService.getOccurrences(task.id).pipe(
                 map((occurrences) => ({
                   task,
-                  occurrence: this.getAvailableOccurrence(occurrences),
+                  occurrence: this.getAvailableOccurrence(
+                    occurrences,
+                  ),
                 })),
               ),
             ),
           ).pipe(
             map((items) =>
-              items.filter((item) => item.occurrence !== null),
+              items.filter(
+                (item) => item.occurrence !== null,
+              ),
             ),
           );
         }),
@@ -244,7 +336,10 @@ export class HouseholdDetail implements OnInit {
       occurrences.find(
         (occurrence) =>
           occurrence.completed_at === null &&
-          new Date(occurrence.available_from).getTime() <= Date.now(),
+          occurrence.failed_at === null &&
+          new Date(
+            occurrence.available_from,
+          ).getTime() <= Date.now(),
       ) ?? null
     );
   }
